@@ -1,3 +1,47 @@
+<!-- HEADER BANNER -->
+<div align="center">
+
+![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,30&height=250&section=header&text=MasterPutra&fontSize=70&fontColor=fff&animation=fadeIn&fontAlignY=38&desc=Web3%20Developer%20%E2%80%A2%20dApp%20Builder%20%E2%80%A2%20Quant%20Enthusiast&descAlignY=58&descSize=18)
+
+</div>
+
+<!-- TYPING ANIMATION -->
+<div align="center">
+
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=800&color=00D9FF&center=true&vCenter=true&width=700&lines=Building+the+decentralized+future+%E2%9A%A1;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+%2B+Game+Theory+enthusiast+%F0%9F%93%88;4+years+in+crypto+%E2%80%94+now+building+the+rails)](https://git.io/typing-svg)
+
+<img src="https://komarev.com/ghpvc/?username=masterputra169&label=Profile%20views&color=00d9ff&style=flat" alt="profile views" />
+<img src="https://img.shields.io/github/followers/masterputra169?label=Followers&style=flat&color=00d9ff" alt="followers" />
+<img src="https://img.shields.io/github/stars/masterputra169?label=Stars&style=flat&color=00d9ff" alt="stars" />
+
+</div>
+
+---
+
+## 🧬 About Me
+
+```typescript
+const masterputra = {
+  name: "Timotius Kusuma Wardana Putra",
+  alias: "MasterPutra",
+  role: "Web3 Developer & Vibe Coder",
+  location: "Indonesia 🇮🇩",
+
+  currentlyBuilding: ["dApps", "Trading bots", "ML pipelines"],
+  currentlyExploring: [
+    "Polymarket ML strategies",
+    "Hyperliquid perps",
+    "Game theory in prediction markets"
+  ],
+
+  journey: ["Trader", "Airdrop Hunter", "Alpha Hunter", "Builder"],
+  yearsInCrypto: 4,
+
+  askMeAbout: ["Web3", "dApps", "DeFi", "Prediction Markets", "Quant Trading"],
+  funFact: "I treat every market like a game theory problem 🧠"
+};
+```
+
 ---
 
 ## 🛠️ Tech Stack
