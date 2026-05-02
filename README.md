@@ -118,12 +118,58 @@ const masterputra = {
 
 ## 🎯 Featured Projects
 
-<div align="center">
-
-[![Polymarket Hybrid Bot](https://github-readme-stats.vercel.app/api/pin/?username=masterputra169&repo=polymarket-hybrid-bot&theme=tokyonight&hide_border=true&bg_color=0D1117)](https://github.com/masterputra169/polymarket-hybrid-bot)
-[![Polymarket BTC 15min](https://github-readme-stats.vercel.app/api/pin/?username=masterputra169&repo=polymarket-btc-15-minutes&theme=tokyonight&hide_border=true&bg_color=0D1117)](https://github.com/masterputra169/polymarket-btc-15-minutes)
-
-</div>
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🤖 Polymarket Hybrid Bot</h3>
+      <p>Automated trading bot for Polymarket BTC 15-minute markets</p>
+      <p>
+        <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" />
+        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" />
+        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" />
+      </p>
+      <a href="https://github.com/masterputra169/polymarket-hybrid-bot">
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+      </a>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📈 Polymarket BTC 15-Min</h3>
+      <p>ML ensemble (XGBoost + LightGBM) trading bot with concept drift detection, auto-retrain pipeline & live React dashboard</p>
+      <p>
+        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" />
+        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" />
+        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" />
+      </p>
+      <a href="https://github.com/masterputra169/polymarket-btc-15-minutes">
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>💰 DollarKilat</h3>
+      <p>Web3 fiat-to-crypto integration with Privy authentication & QRIS payments</p>
+      <p>
+        <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" />
+        <img src="https://img.shields.io/github/stars/masterputra169/dollarkilat?style=flat&color=00d9ff" />
+      </p>
+      <a href="https://github.com/masterputra169/dollarkilat">
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+      </a>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🌐 Simple Web3 Web</h3>
+      <p>Website fully integrated with Ethereum & Base Blockchain via Privy. Showcases on-chain data & Web3 functionality</p>
+      <p>
+        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" />
+        <img src="https://img.shields.io/badge/Web3-F16822?style=flat&logo=web3.js&logoColor=white" />
+      </p>
+      <a href="https://github.com/masterputra169/simple-web3-web">
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 ---
 
