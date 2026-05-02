@@ -1,4 +1,4 @@
-<h1 align="center">Hi 👋, I'm Timotius</h1>
+<h1 align="center">Hi 👋, I'm Timotius Kusuma Wardana Putra aka MasterPutra</h1>
 <h3 align="center">Web3 Developer | dApp Builder | Quant Enthusiast</h3>
 
 <p align="center">
