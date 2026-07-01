@@ -3,16 +3,31 @@
 
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,30&height=250&section=header&text=MasterPutra&fontSize=70&fontColor=fff&animation=fadeIn&fontAlignY=38&desc=Web3%20Developer%20%E2%80%A2%20dApp%20Builder%20%E2%80%A2%20Quant%20Enthusiast&descAlignY=58&descSize=18)
 
+<h1>Hi, I'm Timotius Kusuma Wardana Putra</h1>
+<h3>Building dApps, market tooling, and automation systems from Indonesia 🇮🇩</h3>
+
+<p>
+  <a href="https://x.com/masterputra6969">
+    <img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" alt="X" />
+  </a>
+  <a href="https://www.linkedin.com/in/timotius-kusuma-wardana-putra/">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
+  <a href="https://github.com/masterputra169">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+</p>
+
+<img src="https://komarev.com/ghpvc/?username=masterputra169&label=Profile%20views&color=00d9ff&style=flat" alt="profile views" />
+<img src="https://img.shields.io/github/followers/masterputra169?label=Followers&style=flat&color=00d9ff" alt="followers" />
+<img src="https://img.shields.io/github/stars/masterputra169?label=Stars&style=flat&color=00d9ff" alt="stars" />
+
 </div>
 
 <!-- TYPING ANIMATION -->
 <div align="center">
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=800&color=00D9FF&center=true&vCenter=true&width=700&lines=Building+the+decentralized+future+%E2%9A%A1;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+%2B+Game+Theory+enthusiast+%F0%9F%93%88;4+years+in+crypto+%E2%80%94+now+building+the+rails)](https://git.io/typing-svg)
-
-<img src="https://komarev.com/ghpvc/?username=masterputra169&label=Profile%20views&color=00d9ff&style=flat" alt="profile views" />
-<img src="https://img.shields.io/github/followers/masterputra169?label=Followers&style=flat&color=00d9ff" alt="followers" />
-<img src="https://img.shields.io/github/stars/masterputra169?label=Stars&style=flat&color=00d9ff" alt="stars" />
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=800&color=00D9FF&center=true&vCenter=true&width=780&lines=Building+the+decentralized+future+%E2%9A%A1;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+%2B+Game+Theory+for+real+market+edges+%F0%9F%93%88;From+crypto+research+to+production+systems)](https://git.io/typing-svg)
 
 </div>
 
@@ -24,23 +39,51 @@
 const masterputra = {
   name: "Timotius Kusuma Wardana Putra",
   alias: "MasterPutra",
-  role: "Web3 Developer & Vibe Coder",
+  role: "Web3 Developer & Quant Builder",
   location: "Indonesia 🇮🇩",
 
-  currentlyBuilding: ["dApps", "Trading bots", "ML pipelines"],
+  currentlyBuilding: [
+    "dApps",
+    "Trading bots",
+    "ML pipelines",
+    "On-chain data products"
+  ],
   currentlyExploring: [
     "Polymarket ML strategies",
     "Hyperliquid perps",
-    "Game theory in prediction markets"
+    "Game theory in prediction markets",
+    "Web3 payment rails"
   ],
 
   journey: ["Trader", "Airdrop Hunter", "Alpha Hunter", "Builder"],
   yearsInCrypto: 4,
 
   askMeAbout: ["Web3", "dApps", "DeFi", "Prediction Markets", "Quant Trading"],
+  operatingMode: "Research deeply, ship fast, measure everything",
   funFact: "I treat every market like a game theory problem 🧠"
 };
 ```
+
+---
+
+## 🚀 Current Focus
+
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h3>⛓️ Web3 Apps</h3>
+      <p>Wallet-native products, payment flows, smart contract integrations, and clean frontend experiences for on-chain users.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h3>📊 Market Intelligence</h3>
+      <p>Prediction market research, signal pipelines, model evaluation, and live dashboards for faster decision-making.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h3>🤖 Automation</h3>
+      <p>Bots, retraining workflows, alerting systems, and backend tooling that turn repeated work into reliable systems.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -92,16 +135,16 @@ const masterputra = {
 <div align="center">
 
 <a href="https://github.com/masterputra169">
-  <img height="180em" src="https://github-readme-stats-sigma-five.vercel.app/api?username=masterputra169&show_icons=true&theme=tokyonight&include_all_commits=true&count_private=true&hide_border=true&bg_color=0D1117" />
+  <img height="180em" src="https://github-readme-stats-sigma-five.vercel.app/api?username=masterputra169&show_icons=true&theme=tokyonight&include_all_commits=true&count_private=true&hide_border=true&bg_color=0D1117" alt="MasterPutra's GitHub stats" />
 </a>
 <a href="https://github.com/masterputra169">
-  <img height="180em" src="https://github-readme-streak-stats.herokuapp.com?user=masterputra169&theme=tokyonight&hide_border=true&background=0D1117" />
+  <img height="180em" src="https://github-readme-streak-stats.herokuapp.com?user=masterputra169&theme=tokyonight&hide_border=true&background=0D1117" alt="MasterPutra's GitHub streak" />
 </a>
 
 <br/>
 
 <a href="https://github.com/masterputra169">
-  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=masterputra169&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&langs_count=10" />
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=masterputra169&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&langs_count=10" alt="Top languages" />
 </a>
 
 </div>
@@ -109,19 +152,30 @@ const masterputra = {
 ### 🏆 Trophies
 
 <div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=masterputra169&theme=tokyonight&no-frame=true&row=1&column=7" />
+  <img src="https://github-profile-trophy.vercel.app/?username=masterputra169&theme=tokyonight&no-frame=true&row=1&column=7" alt="GitHub trophies" />
 </div>
 
 ### 📈 Activity Graph
 
 <div align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=masterputra169&theme=tokyo-night&hide_border=true&bg_color=0D1117" />
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=masterputra169&theme=tokyo-night&hide_border=true&bg_color=0D1117" alt="GitHub activity graph" />
+</div>
+
+### 🧾 Commit History
+
+<div align="center">
+  <a href="https://commit-history.com/masterputra169">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://commit-history.com/embed/masterputra169?theme=dark" />
+      <img alt="masterputra169's commit history" src="https://commit-history.com/embed/masterputra169" />
+    </picture>
+  </a>
 </div>
 
 ### 🐍 Contribution Snake
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/masterputra169/masterputra169/output/github-contribution-grid-snake-dark.svg" />
+  <img src="https://raw.githubusercontent.com/masterputra169/masterputra169/output/github-contribution-grid-snake-dark.svg" alt="Contribution snake animation" />
 </div>
 
 ---
@@ -132,54 +186,68 @@ const masterputra = {
   <tr>
     <td width="50%" valign="top">
       <h3>🤖 Polymarket Hybrid Bot</h3>
-      <p>Automated trading bot for Polymarket BTC 15-minute markets</p>
+      <p>Automated trading system for Polymarket BTC 15-minute markets, built around research loops, execution logic, and practical signal testing.</p>
       <p>
-        <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" />
-        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" />
-        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" />
+        <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" />
+        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" alt="Stars" />
+        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-hybrid-bot?style=flat&color=00d9ff" alt="Forks" />
       </p>
       <a href="https://github.com/masterputra169/polymarket-hybrid-bot">
-        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" alt="View repo" />
       </a>
     </td>
     <td width="50%" valign="top">
       <h3>📈 Polymarket BTC 15-Min</h3>
-      <p>ML ensemble (XGBoost + LightGBM) trading bot with concept drift detection, auto-retrain pipeline & live React dashboard</p>
+      <p>ML ensemble bot with XGBoost, LightGBM, concept drift detection, auto-retrain pipelines, and a live React dashboard.</p>
       <p>
-        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" />
-        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" />
-        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" />
+        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" alt="JavaScript" />
+        <img src="https://img.shields.io/github/stars/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" alt="Stars" />
+        <img src="https://img.shields.io/github/forks/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" alt="Forks" />
       </p>
       <a href="https://github.com/masterputra169/polymarket-btc-15-minutes">
-        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" alt="View repo" />
       </a>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
       <h3>💰 DollarKilat</h3>
-      <p>Web3 fiat-to-crypto integration with Privy authentication & QRIS payments</p>
+      <p>Web3 fiat-to-crypto integration with Privy authentication, QRIS payment flows, and user-friendly wallet onboarding.</p>
       <p>
-        <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" />
-        <img src="https://img.shields.io/github/stars/masterputra169/dollarkilat?style=flat&color=00d9ff" />
+        <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript" />
+        <img src="https://img.shields.io/github/stars/masterputra169/dollarkilat?style=flat&color=00d9ff" alt="Stars" />
       </p>
       <a href="https://github.com/masterputra169/dollarkilat">
-        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" alt="View repo" />
       </a>
     </td>
     <td width="50%" valign="top">
       <h3>🌐 Simple Web3 Web</h3>
-      <p>Website fully integrated with Ethereum & Base Blockchain via Privy. Showcases on-chain data & Web3 functionality</p>
+      <p>Ethereum and Base-integrated web experience using Privy, on-chain data views, and practical Web3 interactions.</p>
       <p>
-        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" />
-        <img src="https://img.shields.io/badge/Web3-F16822?style=flat&logo=web3.js&logoColor=white" />
+        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" alt="JavaScript" />
+        <img src="https://img.shields.io/badge/Web3-F16822?style=flat&logo=web3.js&logoColor=white" alt="Web3" />
       </p>
       <a href="https://github.com/masterputra169/simple-web3-web">
-        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" />
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" alt="View repo" />
       </a>
     </td>
   </tr>
 </table>
+
+---
+
+## 🧭 Builder Principles
+
+<div align="center">
+
+| Principle | How I Apply It |
+| --- | --- |
+| **Ship with signal** | Turn research into working products, dashboards, and automation. |
+| **Measure the edge** | Use data, backtests, and live feedback before trusting an idea. |
+| **Keep it usable** | Build Web3 tools that feel clear, fast, and practical for real users. |
+
+</div>
 
 ---
 
@@ -198,7 +266,7 @@ const masterputra = {
 ## 💭 Dev Quote
 
 <div align="center">
-  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" />
+  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" alt="Dev quote" />
 </div>
 
 ---
