@@ -3,19 +3,16 @@
 
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,30&height=250&section=header&text=MasterPutra&fontSize=70&fontColor=fff&animation=fadeIn&fontAlignY=38&desc=Web3%20Developer%20%E2%80%A2%20dApp%20Builder%20%E2%80%A2%20Quant%20Enthusiast&descAlignY=58&descSize=18)
 
-<h1>Hi, I'm Timotius Kusuma Wardana Putra</h1>
-<h3>Building dApps, market tooling, and automation systems from Indonesia 🇮🇩</h3>
+<h1>MasterPutra</h1>
+<p><strong>Timotius Kusuma Wardana Putra</strong></p>
+<p>Web3 Developer & Quant Builder from Indonesia 🇮🇩</p>
 
 <p>
-  <a href="https://x.com/masterputra6969">
-    <img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" alt="X" />
-  </a>
-  <a href="https://www.linkedin.com/in/timotius-kusuma-wardana-putra/">
-    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a>
-  <a href="https://github.com/masterputra169">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
+  <code>dApps</code> ·
+  <code>Trading Bots</code> ·
+  <code>ML Pipelines</code> ·
+  <code>Prediction Markets</code> ·
+  <code>On-chain Data</code>
 </p>
 
 <img src="https://komarev.com/ghpvc/?username=masterputra169&label=Profile%20views&color=00d9ff&style=flat" alt="profile views" />
@@ -27,7 +24,7 @@
 <!-- TYPING ANIMATION -->
 <div align="center">
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=800&color=00D9FF&center=true&vCenter=true&width=780&lines=Building+the+decentralized+future+%E2%9A%A1;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+%2B+Game+Theory+for+real+market+edges+%F0%9F%93%88;From+crypto+research+to+production+systems)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=2600&pause=700&color=00D9FF&center=true&vCenter=true&width=900&lines=Building+dApps+for+real+users+%E2%9A%A1;Shipping+Web3+products+with+clean+UX;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+research+%2B+game+theory+for+market+edges;ML+pipelines+for+live+trading+signals;Automating+boring+workflows+into+reliable+systems;Exploring+Hyperliquid%2C+Polymarket%2C+and+on-chain+data;From+crypto+research+to+production+systems;Indonesia-based+builder+with+global+curiosity)](https://git.io/typing-svg)
 
 </div>
 
@@ -71,16 +68,16 @@ const masterputra = {
 <table>
   <tr>
     <td width="33%" valign="top">
-      <h3>⛓️ Web3 Apps</h3>
-      <p>Wallet-native products, payment flows, smart contract integrations, and clean frontend experiences for on-chain users.</p>
+      <h3>⛓️ Web3 Products</h3>
+      <p>Wallet-native apps, payment flows, smart contract integrations, and clean on-chain UX.</p>
     </td>
     <td width="33%" valign="top">
       <h3>📊 Market Intelligence</h3>
-      <p>Prediction market research, signal pipelines, model evaluation, and live dashboards for faster decision-making.</p>
+      <p>Prediction market research, signal pipelines, model evaluation, and live dashboards.</p>
     </td>
     <td width="33%" valign="top">
       <h3>🤖 Automation</h3>
-      <p>Bots, retraining workflows, alerting systems, and backend tooling that turn repeated work into reliable systems.</p>
+      <p>Bots, retraining workflows, alerting systems, and backend tooling for repeatable execution.</p>
     </td>
   </tr>
 </table>
@@ -149,12 +146,6 @@ const masterputra = {
 
 </div>
 
-### 🏆 Trophies
-
-<div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=masterputra169&theme=tokyonight&no-frame=true&row=1&column=7" alt="GitHub trophies" />
-</div>
-
 ### 📈 Activity Graph
 
 <div align="center">
@@ -183,6 +174,24 @@ const masterputra = {
 ## 🎯 Featured Projects
 
 <table>
+  <tr>
+    <td colspan="2" valign="top">
+      <h3>📰 Anyaman — Jurnalisme Damai</h3>
+      <p>Next.js 15 portal for peace journalism and moderated discussion, built with TypeScript, Supabase/PostgreSQL, Prisma, Auth.js, and AI-assisted article workflows.</p>
+      <p>
+        <img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" />
+        <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript" />
+        <img src="https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+        <img src="https://img.shields.io/github/stars/masterputra169/jurnalisme-damai?style=flat&color=00d9ff" alt="Stars" />
+      </p>
+      <a href="https://github.com/masterputra169/jurnalisme-damai">
+        <img src="https://img.shields.io/badge/View_Repo-181717?style=for-the-badge&logo=github&logoColor=white" alt="View repo" />
+      </a>
+      <a href="https://jurnalisme-damai.vercel.app">
+        <img src="https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live demo" />
+      </a>
+    </td>
+  </tr>
   <tr>
     <td width="50%" valign="top">
       <h3>🤖 Polymarket Hybrid Bot</h3>
