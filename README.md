@@ -129,7 +129,7 @@ const masterputra = {
 <div align="center">
 
 <a href="https://github.com/masterputra169">
-  <img height="180" src="https://github-readme-stats.vercel.app/api?username=masterputra169&show_icons=true&theme=tokyonight&include_all_commits=true&hide_border=true&bg_color=0D1117&rank_icon=github" alt="MasterPutra's GitHub stats" />
+  <img height="180" src="https://github-stats-extended.vercel.app/api?username=masterputra169&show_icons=true&theme=tokyonight&include_all_commits=true&hide_border=true&bg_color=0D1117&rank_icon=github" alt="MasterPutra's GitHub stats" />
 </a>
 <a href="https://github.com/masterputra169">
   <img height="180" src="https://streak-stats.demolab.com?user=masterputra169&theme=tokyonight&hide_border=true&background=0D1117" alt="MasterPutra's GitHub streak" />
@@ -138,7 +138,7 @@ const masterputra = {
 <br/>
 
 <a href="https://github.com/masterputra169">
-  <img height="180" src="https://github-readme-stats.vercel.app/api/top-langs/?username=masterputra169&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&langs_count=10&hide=html,css" alt="Top languages" />
+  <img height="180" src="https://github-stats-extended.vercel.app/api/top-langs/?username=masterputra169&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&langs_count=10&hide=html,css" alt="Top languages" />
 </a>
 
 <br/><br/>
