@@ -2,22 +2,14 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,30&height=250&section=header&text=MasterPutra&fontSize=70&fontColor=fff&animation=fadeIn&fontAlignY=38&desc=Web3%20Developer%20%E2%80%A2%20dApp%20Builder%20%E2%80%A2%20Quant%20Enthusiast&descAlignY=58&descSize=18" alt="Header" width="100%" />
 
-<h1>MasterPutra</h1>
-
-<b>Timotius Kusuma Wardana Putra</b><br/>
-Web3 Developer &amp; Quant Builder from Indonesia 🇮🇩
-
+<b>Timotius Kusuma Wardana Putra</b> · Web3 Developer &amp; Quant Builder from Indonesia 🇮🇩<br/>
 <code>dApps</code> · <code>Trading Bots</code> · <code>ML Pipelines</code> · <code>Prediction Markets</code> · <code>On-chain Data</code>
-
-<br/><br/>
 
 <img src="https://komarev.com/ghpvc/?username=masterputra169&label=Profile%20views&color=00d9ff&style=flat" alt="profile views" />
 <a href="https://github.com/masterputra169?tab=followers"><img src="https://img.shields.io/github/followers/masterputra169?label=Followers&style=flat&color=00d9ff" alt="followers" /></a>
 <a href="https://github.com/masterputra169?tab=repositories"><img src="https://img.shields.io/github/stars/masterputra169?label=Stars&style=flat&color=00d9ff" alt="stars" /></a>
 
-<br/><br/>
-
-<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=2600&pause=700&color=00D9FF&center=true&vCenter=true&width=900&lines=Building+dApps+for+real+users+%E2%9A%A1;Shipping+Web3+products+with+clean+UX;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+research+%2B+game+theory+for+market+edges;ML+pipelines+for+live+trading+signals;Automating+boring+workflows+into+reliable+systems;Exploring+Hyperliquid%2C+Polymarket%2C+and+on-chain+data;From+crypto+research+to+production+systems;Indonesia-based+builder+with+global+curiosity" alt="Typing SVG" /></a>
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&duration=2600&pause=700&color=00D9FF&center=true&vCenter=true&width=700&lines=Building+dApps+for+real+users+%E2%9A%A1;Shipping+Web3+products+with+clean+UX;Smart+Contracts+%7C+DeFi+%7C+Prediction+Markets;Quant+research+%2B+game+theory+for+market+edges;ML+pipelines+for+live+trading+signals;Automating+boring+workflows+into+reliable+systems;Exploring+Hyperliquid%2C+Polymarket%2C+and+on-chain+data;From+crypto+research+to+production+systems;Indonesia-based+builder+with+global+curiosity" alt="Typing SVG" /></a>
 
 </div>
 
@@ -79,8 +71,6 @@ const masterputra = {
 
 ## 🛠️ Tech Stack
 
-<div align="center">
-
 #### 💻 Languages
 <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
@@ -120,8 +110,6 @@ const masterputra = {
 <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white" alt="VS Code" />
 <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
 
-</div>
-
 ---
 
 ## 📊 GitHub Stats
@@ -139,12 +127,6 @@ const masterputra = {
 
 <a href="https://github.com/masterputra169">
   <img height="180" src="https://github-stats-extended.vercel.app/api/top-langs/?username=masterputra169&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&langs_count=10&hide=html,css" alt="Top languages" />
-</a>
-
-<br/><br/>
-
-<a href="https://github.com/ryo-ma/github-profile-trophy">
-  <img src="https://github-profile-trophy.vercel.app/?username=masterputra169&theme=tokyonight&no-frame=true&no-bg=true&margin-w=8&column=7" alt="GitHub trophies" />
 </a>
 
 </div>
