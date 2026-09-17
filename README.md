@@ -159,7 +159,7 @@ const masterputra = {
     <td valign="top" width="50%">
       <h3>📈 Polymarket BTC 15-Min</h3>
       <p>ML ensemble bot with XGBoost, LightGBM, concept drift detection, auto-retrain pipelines, and a live React dashboard.</p>
-      <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" alt="JavaScript" />
+      <img src="https://img.shields.io/badge/TypeScript-F7DF1E?style=flat&logo=typescript&logoColor=black" alt="TypeScript" />
       <img src="https://img.shields.io/github/stars/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" alt="Stars" />
       <img src="https://img.shields.io/github/forks/masterputra169/polymarket-btc-15-minutes?style=flat&color=00d9ff" alt="Forks" />
       <br/><br/>
