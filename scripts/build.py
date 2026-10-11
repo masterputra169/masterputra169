@@ -207,14 +207,14 @@ def fetch_btc() -> dict | None:
     try:
         rows = json.loads(http("https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=900"))
         rows = sorted(rows, key=lambda r: r[0])[-25:]  # [time, low, high, open, close, vol]
-        return {"source": "COINBASE", "candles": [[r[0], r[3], r[2], r[1], r[4]] for r in rows]}
+        return {"source": "COINBASE", "fetched": int(dt.datetime.now(dt.timezone.utc).timestamp()), "candles": [[r[0], r[3], r[2], r[1], r[4]] for r in rows]}
     except Exception as e:  # noqa: BLE001
         log("coinbase failed:", e)
     try:
         j = json.loads(http("https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=15"))
         key = next(k for k in j["result"] if k != "last")
         rows = j["result"][key][-25:]
-        return {"source": "KRAKEN", "candles": [[int(r[0]), float(r[1]), float(r[2]), float(r[3]), float(r[4])] for r in rows]}
+        return {"source": "KRAKEN", "fetched": int(dt.datetime.now(dt.timezone.utc).timestamp()), "candles": [[int(r[0]), float(r[1]), float(r[2]), float(r[3]), float(r[4])] for r in rows]}
     except Exception as e:  # noqa: BLE001
         log("kraken failed:", e)
     return None
@@ -354,7 +354,7 @@ def header(t, btc):
     last, first = c[-1][4], c[0][1]
     chg = (last / first - 1) * 100
     chg_col = t["mint"] if chg >= 0 else t["rose"]
-    ts = dt.datetime.fromtimestamp(c[-1][0] + 900, dt.timezone.utc).astimezone(WIB)
+    ts = dt.datetime.fromtimestamp(btc.get("fetched", c[-1][0] + 900), dt.timezone.utc).astimezone(WIB)
     live = btc["source"] != "DEMO"
     status = f"{btc['source']} · {ts:%H:%M} WIB" if live else "DEMO DATA"
 
@@ -549,6 +549,10 @@ def stack(t):
 
 
 # ── stats ────────────────────────────────────────────────────────────────────
+NON_CODE = {"HTML", "CSS", "SCSS", "Less", "Jupyter Notebook", "Batchfile", "PowerShell", "Shell",
+            "Dockerfile", "Makefile", "Procfile", "Hack", "EJS", "Handlebars"}
+
+
 def stats_card(t, s):
     W, H = 1280, 360
     (cur, cs, ce), (best, bs, be) = streaks(s["days"])
@@ -585,7 +589,7 @@ def stats_card(t, s):
     out.append(f'<text x="40" y="222" class="m" font-size="12" letter-spacing="1.8" fill="{t["muted"]}">52-WEEK ACTIVITY</text>'
                f'<text x="{bx + 52 * 13.4 - 4:.0f}" y="222" text-anchor="end" class="m" font-size="12" fill="{t["muted"]}">peak {mx}/wk</text>' + "".join(bars))
     # languages
-    langs = sorted(((k, v) for k, v in s["langs"].items() if k not in ("HTML", "CSS", "SCSS", "Jupyter Notebook")),
+    langs = sorted(((k, v) for k, v in s["langs"].items() if k not in NON_CODE),
                    key=lambda kv: -kv[1])
     tot = sum(v for _, v in langs) or 1
     top = langs[:5]
