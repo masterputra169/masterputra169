@@ -1,10 +1,13 @@
 name: Build profile assets
 
-# Hourly: live BTC header, GitHub activity card, contribution snake, and all
-# static SVGs (dark + light) are rebuilt and published to the `output` branch.
+# Every 15 min: live BTC header (one new 15m candle per run), GitHub activity
+# card and all static SVGs (dark + light) are rebuilt and published to the
+# `output` branch. The contribution snake is regenerated once a day (and on
+# manual/push runs); in between, the previous snake files are carried over.
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "4,19,34,49 * * * *"   # assets
+    - cron: "7 0 * * *"            # daily snake (07:07 WIB)
   workflow_dispatch:
   push:
     branches: [main]
@@ -33,7 +36,16 @@ jobs:
       - name: Install font tooling
         run: pip install --quiet fonttools brotli
 
+      - name: Carry over previous snake
+        run: |
+          mkdir -p dist
+          base=https://raw.githubusercontent.com/${{ github.repository }}/output
+          for f in github-contribution-grid-snake.svg github-contribution-grid-snake-dark.svg; do
+            curl -fsSL --retry 3 "$base/$f" -o "dist/$f" || echo "no previous $f"
+          done
+
       - name: Generate contribution snake
+        if: github.event_name != 'schedule' || github.event.schedule == '7 0 * * *'
         uses: Platane/snk/svg-only@v3
         with:
           github_user_name: ${{ github.repository_owner }}
