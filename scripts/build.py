@@ -524,21 +524,24 @@ STACK = [
 ]
 
 
+STACK_FS = 18.5
+
+
 def stack(t):
-    W, row_h = 1280, 58
+    W, row_h = 1280, 62
     H = 40 + row_h * len(STACK)
     out = []
     for r, (label, key, items) in enumerate(STACK):
         y = 26 + r * row_h
         col = t[key]
-        out.append(f'<circle cx="42" cy="{y + 17}" r="4" fill="{col}"/><text x="58" y="{y + 22}" class="m" font-size="13.5" letter-spacing="2.2" fill="{col}">{label}</text>')
+        out.append(f'<circle cx="42" cy="{y + 19}" r="4.5" fill="{col}"/><text x="58" y="{y + 24}" class="m" font-size="15" letter-spacing="2.2" fill="{col}">{label}</text>')
         x = 236
         for s in items:
-            w = chip_w(s, 16, False, 16)
+            w = chip_w(s, STACK_FS, False, 16)
             if x + w > W - 32:
                 raise ValueError(f"stack row {label} overflows")
-            out.append(f'<rect x="{x}" y="{y}" width="{w}" height="34" rx="10" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-                       f'<text x="{x + w / 2:.1f}" y="{y + 22.5}" text-anchor="middle" class="s" font-size="16" font-weight="500" fill="{t["text"]}">{esc(s)}</text>')
+            out.append(f'<rect x="{x}" y="{y}" width="{w}" height="38" rx="11" fill="{t["chip"]}" stroke="{t["line"]}"/>'
+                       f'<text x="{x + w / 2:.1f}" y="{y + 25}" text-anchor="middle" class="s" font-size="{STACK_FS}" font-weight="500" fill="{t["text"]}">{esc(s)}</text>')
             x += w + 10
     defs = f'<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="{t["dots"]}"/></pattern>'
     body = (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="{t["panel"]}" stroke="{t["line"]}"/>'
@@ -592,9 +595,9 @@ def stats_card(t, s):
     langs = sorted(((k, v) for k, v in s["langs"].items() if k not in NON_CODE),
                    key=lambda kv: -kv[1])
     tot = sum(v for _, v in langs) or 1
-    top = langs[:5]
+    top = [(k, v) for k, v in langs[:5] if v / tot >= 0.01]  # sub-1% slivers read as noise
     other = tot - sum(v for _, v in top)
-    if other > 0:
+    if other / tot >= 0.01:
         top.append(("Other", other))
     pal = [t["cyan"], t["indigo"], t["violet"], t["mint"], t["rose"], t["dim"]]
     lx, ly, lw = 800, 244, 440
