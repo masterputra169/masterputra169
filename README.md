@@ -35,12 +35,6 @@ I'm **Timotius Kusuma Wardana Putra**, a Web3 developer from Indonesia who came 
 <a href="https://github.com/masterputra169/simple-web3-web"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/card-simple-web3-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/card-simple-web3-light.svg" /><img src="https://raw.githubusercontent.com/masterputra169/masterputra169/output/card-simple-web3-dark.svg" width="49%" alt="Simple Web3 Web — Ethereum and Base data with Privy login" /></picture></a>
 </p>
 
-<p align="center"><sub>
-  Live → <a href="https://dollarkilat.xyz">dollarkilat.xyz</a> ·
-  <a href="https://jurnalisme-damai.vercel.app">jurnalisme-damai.vercel.app</a> ·
-  <a href="https://github.com/masterputra169?tab=repositories">all repositories ↗</a>
-</sub></p>
-
 <br/>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/section-stack-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/section-stack-light.svg" /><img src="https://raw.githubusercontent.com/masterputra169/masterputra169/output/section-stack-dark.svg" width="100%" alt="Stack" /></picture>
@@ -68,4 +62,3 @@ I'm **Timotius Kusuma Wardana Putra**, a Web3 developer from Indonesia who came 
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/footer-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/masterputra169/masterputra169/output/footer-light.svg" /><img src="https://raw.githubusercontent.com/masterputra169/masterputra169/output/footer-dark.svg" width="100%" alt="In code we trust, in markets we hunt" /></picture>
 
-<p align="center"><sub>Header chart and activity card rebuild hourly via <a href=".github/workflows/build.yml">GitHub Actions</a>.</sub></p>
