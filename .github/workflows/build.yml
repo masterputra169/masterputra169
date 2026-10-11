@@ -1,0 +1,58 @@
+name: Build profile assets
+
+# Hourly: live BTC header, GitHub activity card, contribution snake, and all
+# static SVGs (dark + light) are rebuilt and published to the `output` branch.
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install font tooling
+        run: pip install --quiet fonttools brotli
+
+      - name: Generate contribution snake
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/github-contribution-grid-snake.svg?color_snake=#4f46e5&color_dots=#eef1f6,#c7f0f7,#67d8ec,#0891b2,#155e75
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark&color_snake=#c084fc&color_dots=#141a2b,#164e63,#0e7490,#06b6d4,#22d3ee
+
+      - name: Build SVGs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Comma-separated repo names to leave out of the language breakdown
+          EXCLUDE_REPOS: ""
+        run: python scripts/build.py --out dist
+
+      - name: Publish to output branch
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+          commit_message: "build: profile assets"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
