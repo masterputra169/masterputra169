@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="Polymarket BTC 15m — XGBoost + LightGBM ensemble trading BTC binary markets — drift detection, auto-retrain, Telegram alerts, live React dashboard.">
+  <title>Polymarket BTC 15m</title>
+  <defs>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#34d399" stop-opacity=".75"/><stop offset=".45" stop-color="#1c2740"/><stop offset="1" stop-color="#1c2740"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="640" cy="0" r="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#34d399" stop-opacity=".16"/><stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#172034"/></pattern>
+    <clipPath id="c"><rect x="1" y="1" width="638" height="298" rx="20"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect width="640" height="300" fill="#0c1222"/>
+    <rect width="640" height="300" fill="url(#dots)" opacity=".7"/>
+    <rect width="640" height="300" fill="url(#glow)"/>
+    <rect x="0" y="0" width="5" height="300" fill="#34d399" opacity=".9"/>
+  </g>
+  <rect x="1" y="1" width="638" height="298" rx="20" fill="none" stroke="url(#edge)" stroke-width="1.5"/>
+  <text x="36" y="52" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="13" letter-spacing="2"><tspan fill="#34d399">02</tspan><tspan fill="#64748b">  /  QUANT · ML</tspan></text>
+  
+  <g transform="translate(576 30)"><rect width="30" height="30" rx="9" fill="#070a12" stroke="#1c2740"/>
+    <path d="M11 19 L19 11 M12.5 11 H19 V17.5" fill="none" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="34" y="108" font-family="'Inter','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="34" font-weight="750" fill="#f1f5f9" letter-spacing="-.8">Polymarket BTC 15m</text>
+  <text x="36" y="148" font-family="'Inter','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="20" fill="#cbd5e1" fill-opacity=".86"><tspan x="36" dy="0">XGBoost + LightGBM ensemble trading BTC</tspan><tspan x="36" dy="29">binary markets — drift detection, auto-retrain,</tspan><tspan x="36" dy="29">Telegram alerts, live React dashboard.</tspan></text>
+  <rect x="36" y="236" width="122" height="30" rx="15" fill="#34d399" fill-opacity=".08" stroke="#34d399" stroke-opacity=".35"/><text x="97.0" y="256" text-anchor="middle" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14" fill="#cbd5e1">TypeScript</text><rect x="168" y="236" width="94" height="30" rx="15" fill="#34d399" fill-opacity=".08" stroke="#34d399" stroke-opacity=".35"/><text x="215.0" y="256" text-anchor="middle" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14" fill="#cbd5e1">XGBoost</text><rect x="272" y="236" width="104" height="30" rx="15" fill="#34d399" fill-opacity=".08" stroke="#34d399" stroke-opacity=".35"/><text x="324.0" y="256" text-anchor="middle" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14" fill="#cbd5e1">LightGBM</text><rect x="386" y="236" width="76" height="30" rx="15" fill="#34d399" fill-opacity=".08" stroke="#34d399" stroke-opacity=".35"/><text x="424.0" y="256" text-anchor="middle" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14" fill="#cbd5e1">React</text>
+</svg>
