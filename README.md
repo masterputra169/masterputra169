@@ -21,7 +21,7 @@
 
 <img src="./assets/section-about.svg" width="100%" alt="About" />
 
-I'm **Timotius Kusuma Wardana Putra**, a Web3 developer from Indonesia 🇮🇩 who came up through the market side of crypto — four years as **trader → airdrop hunter → alpha hunter → builder**. That path shapes how I build: wallet-native products that feel simple for normal people, and trading systems that have to survive contact with live markets.
+I'm **Timotius Kusuma Wardana Putra**, a Web3 developer from Indonesia who came up through the market side of crypto — four years as **trader → airdrop hunter → alpha hunter → builder**. That path shapes how I build: wallet-native products that feel simple for normal people, and trading systems that have to survive contact with live markets.
 
 - **Building** — [DollarKilat](https://dollarkilat.xyz): get paid in USDC, spend through QRIS, on Solana
 - **Researching** — BTC price forecasting, XGBoost vs LSTM on technical + on-chain features
@@ -64,8 +64,8 @@ I'm **Timotius Kusuma Wardana Putra**, a Web3 developer from Indonesia 🇮🇩 
 <img src="./assets/section-activity.svg" width="100%" alt="Activity" />
 
 <p align="center">
-  <img height="170" src="https://github-stats-extended.vercel.app/api?username=masterputra169&show_icons=true&include_all_commits=true&rank_icon=github&border_radius=14&bg_color=0c1222&border_color=1c2740&title_color=22d3ee&icon_color=c084fc&text_color=cbd5e1&ring_color=22d3ee" alt="GitHub stats" />
-  <img height="170" src="https://streak-stats.demolab.com?user=masterputra169&border_radius=14&background=0C1222&border=1C2740&stroke=1C2740&ring=22D3EE&fire=C084FC&currStreakNum=F1F5F9&sideNums=F1F5F9&currStreakLabel=22D3EE&sideLabels=94A3B8&dates=64748B" alt="GitHub streak" />
+  <img height="160" src="https://github-stats-extended.vercel.app/api?username=masterputra169&show_icons=true&include_all_commits=true&rank_icon=github&border_radius=14&bg_color=0c1222&border_color=1c2740&title_color=22d3ee&icon_color=c084fc&text_color=cbd5e1&ring_color=22d3ee" alt="GitHub stats" />
+  <img height="160" src="https://streak-stats.demolab.com?user=masterputra169&border_radius=14&background=0C1222&border=1C2740&stroke=1C2740&ring=22D3EE&fire=C084FC&currStreakNum=F1F5F9&sideNums=F1F5F9&currStreakLabel=22D3EE&sideLabels=94A3B8&dates=64748B" alt="GitHub streak" />
 </p>
 
 <picture>
