@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """Builds every image on the masterputra169 profile README.
 
-Runs hourly in GitHub Actions (.github/workflows/build.yml) and writes into --out:
-  header-{dark,light}.svg     live BTC/USD 15m panel (Coinbase → Kraken → cache)
-  stats-{dark,light}.svg      GitHub activity card (GraphQL → cache)
-  card-*-{dark,light}.svg     project cards
-  stack-, section-*, footer-  static pieces
+Runs every 15 minutes in GitHub Actions (.github/workflows/build.yml) and writes into --out:
+  header-{dark,light}[-narrow].svg   live BTC/USD 15m panel (Coinbase → Kraken → cache)
+  stats-{dark,light}[-narrow].svg    GitHub activity card (GraphQL → cache)
+  card-*-{dark,light}[-narrow].svg   project cards
+  stack-, footer-                    static pieces
+  connect-*-{dark,light}.svg         48px-tall link buttons
+
+Every big image comes in two layouts: WIDE (960 units) for viewports ≥1012px and
+NARROW (480 units) for anything smaller; README.md picks one with <source media>.
+Design direction and the reason behind each choice live in DESIGN.md.
   data/btc.json, data/stats.json   last good data, reused when an API fails
 
 Fonts (Inter + JetBrains Mono) are pulled from Google Fonts, subset to the exact
@@ -43,17 +48,19 @@ EXCLUDE_REPOS = {r.strip() for r in os.environ.get("EXCLUDE_REPOS", "").split(",
 logging.getLogger("fontTools").setLevel(logging.ERROR)
 
 THEMES = {
+    # Two core colors (cyan, violet) on a neutral base. Mint and rose only mark price up/down and live status.
+    # Every text color clears WCAG AA (4.5:1) on panel, chip and GitHub's page background; dim and the n* tones are for lines and bars only.
     "dark": dict(
-        bg1="#070a12", bg2="#0a0f1e", panel="#0c1222", chip="#070a12", line="#1c2740", dots="#1a2338",
-        muted="#64748b", dim="#3b4a66", text="#cbd5e1", bright="#f1f5f9",
-        cyan="#22d3ee", indigo="#818cf8", violet="#c084fc", mint="#34d399", rose="#fb7185", blue="#60a5fa",
-        glow=0.20, panel_op=0.88,
+        bg1="#070a12", bg2="#0a0f1e", panel="#0c1222", chip="#070a12", line="#1c2740",
+        muted="#8b98ad", dim="#3b4a66", text="#cbd5e1", bright="#f1f5f9",
+        cyan="#22d3ee", violet="#c084fc", mint="#34d399", mint_text="#34d399", rose="#fb7185",
+        n1="#64748b", n2="#334155", panel_op=0.92,
     ),
     "light": dict(
-        bg1="#ffffff", bg2="#f3f6fb", panel="#ffffff", chip="#f6f8fc", line="#dfe5ef", dots="#dde3ee",
-        muted="#64748b", dim="#94a3b8", text="#334155", bright="#0f172a",
-        cyan="#0891b2", indigo="#4f46e5", violet="#9333ea", mint="#059669", rose="#e11d48", blue="#2563eb",
-        glow=0.10, panel_op=0.94,
+        bg1="#ffffff", bg2="#f3f6fb", panel="#ffffff", chip="#f6f8fc", line="#dfe5ef",
+        muted="#5b6b82", dim="#94a3b8", text="#334155", bright="#0f172a",
+        cyan="#0e7490", violet="#9333ea", mint="#059669", mint_text="#047857", rose="#be123c",
+        n1="#94a3b8", n2="#cbd5e1", panel_op=1.0,
     ),
 }
 SANS = "MPSans,'Inter','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif"
@@ -180,25 +187,94 @@ class Fonts:
 FONTS: Fonts  # set in main()
 
 
-def svg_doc(w: int, h: int, label: str, body: str, style: str = "", defs: str = "") -> str:
+def svg_doc(w: float, h: float, label: str, body: str, style: str = "", defs: str = "") -> str:
     """Wraps body in an <svg>, embedding only the glyphs that appear in its text."""
+    w, h = round(w), round(h)
     texts = re.findall(r">([^<>]+)<", body)
     chars = html.unescape("".join(texts))
     font_css = FONTS.css(chars)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" '
             f'role="img" aria-label="{esc(label)}"><title>{esc(label)}</title>'
             f"<defs>{defs}</defs><style>{font_css}.s{{font-family:{SANS}}}.m{{font-family:{MONO}}}{style}"
-            f"@media (prefers-reduced-motion:reduce){{*{{animation:none!important;opacity:1!important;"
-            f"stroke-dashoffset:0!important}}}}</style>{body}</svg>\n")
+            f"</style>{body}</svg>\n")
+
+
+# ── layout primitives ────────────────────────────────────────────────────────
+# GitHub scales each image to the README width. WIDE is served to viewports ≥1012px (README ≈ 580–870px wide),
+# NARROW to smaller ones (README ≈ 310–720px), so either layout is shown at roughly 0.6× to 1.5× its own size.
+# At 0.6× a 19-unit label is still ≈11px on screen, which is why nothing below LABEL is ever drawn.
+WIDE, NARROW = 960, 480
+LABEL, BODY = 19, 22
+
+# MOTION dial 1: no animation. GitHub serves these as <img>, and browsers do not pass prefers-reduced-motion
+# into image documents, so the only motion that respects that setting everywhere is none.
+
+
+def pad_of(W):
+    return 28 if W == NARROW else 40
+
+
+def tw(text, size, weight=500, mono=False):
+    return FONTS.width(text, size, mono, weight)
+
+
+def wrap(text, size, maxw, weight=400, sep=" "):
+    """Greedy word wrap using real font metrics."""
+    lines, cur = [], ""
+    for word in text.split(sep):
+        cand = f"{cur}{sep}{word}" if cur else word
+        if cur and tw(cand, size, weight) > maxw:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = cand
+    return lines + ([cur] if cur else [])
+
+
+def lines_svg(lines, x, y, size, lh, fill, cls="s", weight=None, anchor=None):
+    spans = "".join(f'<tspan x="{x:.0f}" dy="{0 if i == 0 else lh}">{esc(s)}</tspan>' for i, s in enumerate(lines))
+    fw = f' font-weight="{weight}"' if weight else ""
+    an = f' text-anchor="{anchor}"' if anchor else ""
+    return f'<text x="{x:.0f}" y="{y:.0f}" class="{cls}" font-size="{size}"{fw}{an} fill="{fill}">{spans}</text>'
+
+
+def chips(t, items, x0, y0, maxw, size=LABEL, h=38, gap=10):
+    """Flows chips left to right and wraps them inside maxw. Returns (svg, bottom_y)."""
+    out, x, y = [], x0, y0
+    for s in items:
+        w = round(tw(s, size, 500) + 28)
+        if x > x0 and x + w > x0 + maxw:
+            x, y = x0, y + h + gap
+        out.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="{w}" height="{h}" rx="7" fill="{t["chip"]}" stroke="{t["line"]}"/>'
+                   f'<text x="{x + w / 2:.1f}" y="{y + h / 2 + size * .36:.1f}" text-anchor="middle" class="s" font-size="{size}" '
+                   f'font-weight="500" fill="{t["text"]}">{esc(s)}</text>')
+        x += w + gap
+    return "".join(out), y + h
+
+
+def live_badge(t, right_x, y):
+    """Marks a project whose site is deployed. Static dot: the state is real, so it needs no animation to be noticed."""
+    w = round(tw("Live", LABEL, 600) + 46)
+    x = right_x - w
+    return (f'<g transform="translate({x} {y})"><rect width="{w}" height="38" rx="7" fill="{t["mint"]}" fill-opacity=".1" '
+            f'stroke="{t["mint"]}" stroke-opacity=".5"/><circle cx="17" cy="19" r="4.5" fill="{t["mint"]}"/>'
+            f'<text x="30" y="{19 + LABEL * .36:.1f}" class="s" font-size="{LABEL}" font-weight="600" fill="{t["mint_text"]}">Live</text></g>'), x
+
+
+def arrow(t, x, y):
+    """The whole card is a link to its repo; the arrow is the only cue that an image is clickable."""
+    return (f'<g transform="translate({x:.0f} {y:.0f})"><rect width="38" height="38" rx="8" fill="{t["chip"]}" stroke="{t["line"]}"/>'
+            f'<path d="M14 24 L24 14 M15.5 14 H24 V22.5" fill="none" stroke="{t["text"]}" stroke-width="2" '
+            f'stroke-linecap="round" stroke-linejoin="round"/></g>')
+
+
+def shell(t, W, H, rx=16):
+    return f'<rect x=".75" y=".75" width="{W - 1.5:.1f}" height="{H - 1.5:.1f}" rx="{rx}" fill="{t["panel"]}" stroke="{t["line"]}" stroke-width="1.5"/>'
 
 
 def brand_grad(t, gid="brand"):
     return (f'<linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{t["cyan"]}"/>'
-            f'<stop offset=".55" stop-color="{t["indigo"]}"/><stop offset="1" stop-color="{t["violet"]}"/></linearGradient>')
-
-
-def chip_w(text, size, mono, pad):
-    return round(FONTS.width(text, size, mono) + pad * 2)
+            f'<stop offset="1" stop-color="{t["violet"]}"/></linearGradient>')
 
 
 # ── data: BTC ────────────────────────────────────────────────────────────────
@@ -288,7 +364,7 @@ def mock_stats() -> dict:
         days[d.isoformat()] = 0 if rnd.random() < 0.45 else int(rnd.expovariate(0.25))
     for i in range(4):
         days[(dt.date(2026, 10, 11) - dt.timedelta(days=i)).isoformat()] = 3 + i
-    return {"created": "2023-05-16T00:00:00Z", "followers": 5, "repos": 19, "stars": 6,
+    return {"demo": True, "created": "2023-05-16T00:00:00Z", "followers": 5, "repos": 19, "stars": 6,
             "langs": {"TypeScript": 900, "JavaScript": 700, "Python": 420, "Rust": 90, "CSS": 120, "HTML": 60},
             "days": days, "fetched": "2026-10-11T14:00:00+00:00"}
 
@@ -327,228 +403,189 @@ def streaks(days: dict[str, int]):
 
 
 def fmt_day(s):
-    return dt.date.fromisoformat(s).strftime("%b %-d") if s else "—"
+    return dt.date.fromisoformat(s).strftime("%b %-d") if s else "n/a"
 
 
 # ── header ───────────────────────────────────────────────────────────────────
-def header(t, btc):
+def header(t, btc, W):
+    narrow = W == NARROW
+    pad = pad_of(W) if narrow else 48
+    col = W - 2 * pad if narrow else 452
+
+    # identity block
+    name_fs = 76
+    while tw("MasterPutra", name_fs, 800) - 10 * name_fs * .04 > col:
+        name_fs -= 2
+    y = pad + 8 + name_fs * .74
+    left = [f'<text x="{pad - 3}" y="{y:.0f}" class="s" font-size="{name_fs}" font-weight="800" '
+            f'letter-spacing="{-name_fs * .04:.1f}" fill="url(#brand)">MasterPutra</text>']
+    roles = wrap("Web3 Developer · dApp Builder · Quant Builder", 24, col, 500, sep=" · ")
+    y += 46
+    left.append(lines_svg(roles, pad, y, 24, 33, t["text"], weight=500))
+    y += 33 * (len(roles) - 1) + 40
+    tagline = wrap("Shipping on-chain products for real users.", BODY, col)
+    left.append(lines_svg(tagline, pad, y, BODY, 31, t["muted"]))
+    y += 31 * (len(tagline) - 1) + 26
+    ch, left_bottom = chips(t, ["Solana", "EVM · Base", "Prediction markets", "ML signals"], pad, y, col)
+    left.append(ch)
+
+    # BTC/USD 15m panel
+    ph = 322
+    if narrow:
+        px, py, pw = pad, left_bottom + 32, W - 2 * pad
+        H = py + ph + pad
+    else:
+        px, py, pw = 540, 40, W - 40 - 540
+        H = max(py + ph + 40, left_bottom + 48)
+        py = (H - ph) / 2
+    ix, iw = px + 24, pw - 48
     c = btc["candles"][-24:]
     lo_all, hi_all = min(r[3] for r in c), max(r[2] for r in c)
-    pad = (hi_all - lo_all) * 0.06 or 1
-    lo_all, hi_all = lo_all - pad, hi_all + pad
-    top, bot = 150, 292
-    y = lambda v: bot - (v - lo_all) / (hi_all - lo_all) * (bot - top)  # noqa: E731
-    step, x0, bw = 16.2, 810, 9
+    rng = (hi_all - lo_all) * 0.06 or 1
+    lo_all, hi_all = lo_all - rng, hi_all + rng
+    top, bot = py + 112, py + 238
+    yv = lambda v: bot - (v - lo_all) / (hi_all - lo_all) * (bot - top)  # noqa: E731
+    step = iw / len(c)
+    bw = step * .58
     cds, pts, ema = [], [], c[0][4]
     for i, (_, o, h, l, cl) in enumerate(c):
-        x = x0 + i * step
-        col = t["mint"] if cl >= o else t["rose"]
-        bt, bb = y(max(o, cl)), y(min(o, cl))
-        cds.append(f'<g class="cd" style="animation-delay:{0.2 + i * 0.045:.2f}s">'
-                   f'<line x1="{x + bw / 2:.1f}" y1="{y(h):.1f}" x2="{x + bw / 2:.1f}" y2="{y(l):.1f}" stroke="{col}" stroke-width="1.5"/>'
-                   f'<rect x="{x:.1f}" y="{bt:.1f}" width="{bw}" height="{max(bb - bt, 1.6):.1f}" rx="1.5" fill="{col}"/></g>')
+        cx = ix + i * step + step / 2
+        col_ = t["mint"] if cl >= o else t["rose"]
+        bt, bb = yv(max(o, cl)), yv(min(o, cl))
+        cds.append(f'<line x1="{cx:.1f}" y1="{yv(h):.1f}" x2="{cx:.1f}" y2="{yv(l):.1f}" stroke="{col_}" stroke-width="1.5"/>'
+                   f'<rect x="{cx - bw / 2:.1f}" y="{bt:.1f}" width="{bw:.1f}" height="{max(bb - bt, 1.6):.1f}" rx="1.5" fill="{col_}"/>')
         ema += (cl - ema) * (2 / 10)
-        pts.append((x + bw / 2, y(ema)))
+        pts.append((cx, yv(ema)))
     path = "M" + " L".join(f"{a:.1f} {b:.1f}" for a, b in pts)
     ex, ey = pts[-1]
     last, first = c[-1][4], c[0][1]
     chg = (last / first - 1) * 100
-    chg_col = t["mint"] if chg >= 0 else t["rose"]
+    chg_col = t["mint_text"] if chg >= 0 else t["rose"]
     ts = dt.datetime.fromtimestamp(btc.get("fetched", c[-1][0] + 900), dt.timezone.utc).astimezone(WIB)
     live = btc["source"] != "DEMO"
-    status = f"{btc['source']} · {ts:%H:%M} WIB" if live else "DEMO DATA"
-
-    chips = ["SOLANA", "EVM · BASE", "PREDICTION MARKETS", "ML SIGNALS"]
-    chip_svg, x = [], 72
-    for i, s in enumerate(chips):
-        w = chip_w(s, 13, True, 18) + len(s) * 1.6
-        chip_svg.append(f'<g class="rise" style="animation-delay:{0.85 + i * 0.08:.2f}s"><rect x="{x}" y="344" width="{w:.0f}" height="34" rx="17" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-                        f'<text x="{x + w / 2:.1f}" y="366" text-anchor="middle" class="m" font-size="13" letter-spacing="1.6" fill="{t["text"]}">{esc(s)}</text></g>')
-        x += w + 10
-    blocks = "".join(
-        f'<rect x="{806 + i * 80}" y="318" width="58" height="26" rx="6" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-        f'<text x="{835 + i * 80}" y="335.5" text-anchor="middle" class="m" font-size="11" fill="{t["muted"]}">{h}</text>'
-        f'<rect x="{806 + i * 80}" y="318" width="58" height="26" rx="6" fill="none" stroke="{t["cyan"]}" stroke-opacity="0">'
-        f'<animate attributeName="stroke-opacity" values="0;0;.9;0;0" keyTimes="0;{i * .18:.2f};{i * .18 + .06:.2f};{i * .18 + .16:.2f};1" dur="3.2s" repeatCount="indefinite"/></rect>'
-        for i, h in enumerate(["0x7a", "0x3f", "0xc1", "0x9e", "0x5d"]))
-
-    defs = f"""<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{t['bg1']}"/><stop offset="1" stop-color="{t['bg2']}"/></linearGradient>
-<radialGradient id="gC" cx="1010" cy="60" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{t['cyan']}" stop-opacity="{t['glow']}"/><stop offset="1" stop-color="{t['cyan']}" stop-opacity="0"/></radialGradient>
-<radialGradient id="gV" cx="170" cy="470" r="560" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{t['violet']}" stop-opacity="{t['glow'] * .9}"/><stop offset="1" stop-color="{t['violet']}" stop-opacity="0"/></radialGradient>
-<pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="{t['dots']}"/></pattern>
-<linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".6" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<mask id="dm"><rect width="1280" height="420" fill="url(#fade)"/></mask>{brand_grad(t)}
-<linearGradient id="ef" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{t['cyan']}" stop-opacity=".22"/><stop offset="1" stop-color="{t['cyan']}" stop-opacity="0"/></linearGradient>
-<clipPath id="fr"><rect width="1280" height="420" rx="26"/></clipPath>"""
-    style = (".rise{opacity:0;animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}"
-             ".cd{opacity:0;transform-box:fill-box;transform-origin:50% 100%;animation:grow .5s cubic-bezier(.2,.8,.2,1) forwards}"
-             ".ema{stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.6s 1.3s ease-out forwards}"
-             ".ef{opacity:0;animation:show 1s 2.3s forwards}.live{animation:pulse 1.6s ease-in-out infinite}"
-             "@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}"
-             "@keyframes grow{from{opacity:0;transform:scaleY(.15)}to{opacity:1;transform:none}}"
-             "@keyframes draw{to{stroke-dashoffset:0}}@keyframes show{to{opacity:1}}"
-             "@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    border = f'<rect x=".5" y=".5" width="1279" height="419" rx="26" fill="none" stroke="{t["line"]}"/>' if t is THEMES["light"] else ""
-    body = f"""<g clip-path="url(#fr)">
-<rect width="1280" height="420" fill="url(#bg)"/><rect width="1280" height="420" fill="url(#dots)" mask="url(#dm)"/>
-<rect width="1280" height="420" fill="url(#gC)"/><rect width="1280" height="420" fill="url(#gV)"/>
-<g class="rise" style="animation-delay:.05s"><text x="72" y="96" class="m" font-size="19"><tspan fill="{t['cyan']}">~/masterputra</tspan><tspan fill="{t['muted']}"> $ whoami</tspan></text></g>
-<g class="rise" style="animation-delay:.2s"><text x="67" y="206" class="s" font-size="106" font-weight="800" letter-spacing="-4.5" fill="url(#brand)">MasterPutra</text></g>
-<g class="rise" style="animation-delay:.38s"><text x="72" y="258" class="s" font-size="29" font-weight="500" fill="{t['text']}">Web3 Developer <tspan fill="{t['dim']}">·</tspan> dApp Builder <tspan fill="{t['dim']}">·</tspan> Quant Builder</text></g>
-<g class="rise" style="animation-delay:.55s"><text x="72" y="306" class="m" font-size="18" fill="{t['muted']}"><tspan fill="{t['mint']}">❯</tspan> shipping on-chain products for real users <tspan fill="{t['cyan']}">▋<animate attributeName="fill-opacity" values="1;1;0;0" keyTimes="0;.5;.5;1" dur="1.05s" repeatCount="indefinite"/></tspan></text></g>
-{''.join(chip_svg)}
-<g class="rise" style="animation-delay:.1s">
-<rect x="782" y="56" width="440" height="308" rx="18" fill="{t['panel']}" fill-opacity="{t['panel_op']}" stroke="{t['line']}"/>
-<text x="806" y="88" class="m" font-size="12.5" letter-spacing="1.2" fill="{t['muted']}"><tspan fill="{t['bright']}" font-weight="700">BTC/USD</tspan> · 15M</text>
-<circle cx="{1198 - FONTS.width(status, 11.5, True) - status.count(' ') * 0 - len(status) * 1.2 - 12:.1f}" cy="84" r="4" fill="{t['mint'] if live else t['muted']}" class="live"/>
-<text x="1198" y="88" text-anchor="end" class="m" font-size="11.5" letter-spacing="1.2" fill="{t['muted']}">{esc(status)}</text>
-<text x="805" y="128" class="s" font-size="30" font-weight="700" letter-spacing="-.6" fill="{t['bright']}" style="font-variant-numeric:tabular-nums">${last:,.0f}</text>
-<text x="{805 + FONTS.width(f'${last:,.0f}', 30, weight=700) + 14:.1f}" y="127" class="m" font-size="14" font-weight="700" fill="{chg_col}">{'+' if chg >= 0 else ''}{chg:.2f}%<tspan fill="{t['muted']}" font-weight="400"> 6H</tspan></text>
-<text x="1198" y="127" text-anchor="end" class="m" font-size="11" fill="{t['muted']}" letter-spacing="1"><tspan fill="{t['cyan']}">━</tspan> EMA 9</text>
-<g stroke="{t['line']}" stroke-dasharray="3 6"><line x1="802" y1="150" x2="1202" y2="150"/><line x1="802" y1="197" x2="1202" y2="197"/><line x1="802" y1="244" x2="1202" y2="244"/><line x1="802" y1="292" x2="1202" y2="292"/></g>
-<path class="ef" d="{path} L{ex:.1f} 292 L{pts[0][0]:.1f} 292 Z" fill="url(#ef)"/>
+    status = f"{btc['source'].title()} · {ts:%H:%M} WIB" if live else "Demo data, live feed unavailable"
+    # real time axis: open time of four candles across the window
+    axis = []
+    for k, anchor in ((0, "start"), (8, "middle"), (16, "middle"), (len(c) - 1, "end")):
+        lbl = dt.datetime.fromtimestamp(c[k][0], dt.timezone.utc).astimezone(WIB).strftime("%H:%M")
+        ax = ix if anchor == "start" else ix + iw if anchor == "end" else ix + k * step + step / 2
+        axis.append(f'<text x="{ax:.1f}" y="{bot + 30:.0f}" text-anchor="{anchor}" class="m" font-size="{LABEL}" fill="{t["muted"]}">{lbl}</text>')
+    price = f"${last:,.0f}"
+    grid = "".join(f'<line x1="{ix:.0f}" y1="{gy:.0f}" x2="{ix + iw:.0f}" y2="{gy:.0f}"/>' for gy in (top, (top + bot) / 2, bot))
+    panel = f"""
+<rect x="{px}" y="{py:.0f}" width="{pw}" height="{ph}" rx="14" fill="{t['panel']}" fill-opacity="{t['panel_op']}" stroke="{t['line']}"/>
+<text x="{ix}" y="{py + 40:.0f}" class="m" font-size="{LABEL}" fill="{t['muted']}"><tspan fill="{t['bright']}" font-weight="700">BTC/USD</tspan> · 15m</text>
+<text x="{ix + iw}" y="{py + 40:.0f}" text-anchor="end" class="m" font-size="{LABEL}" fill="{t['muted']}"><tspan fill="{t['cyan']}">━</tspan> EMA 9</text>
+<text x="{ix - 1}" y="{py + 88:.0f}" class="s" font-size="34" font-weight="700" letter-spacing="-.6" fill="{t['bright']}" style="font-variant-numeric:tabular-nums">{price}</text>
+<text x="{ix + tw(price, 34, 700) + 12:.1f}" y="{py + 87:.0f}" class="m" font-size="{LABEL}" font-weight="700" fill="{chg_col}">{'+' if chg >= 0 else ''}{chg:.2f}%<tspan fill="{t['muted']}" font-weight="400"> 6h</tspan></text>
+<g stroke="{t['line']}" stroke-dasharray="3 6">{grid}</g>
+<path d="{path} L{ex:.1f} {bot:.0f} L{pts[0][0]:.1f} {bot:.0f} Z" fill="url(#ef)"/>
 {''.join(cds)}
-<path class="ema" d="{path}" fill="none" stroke="{t['cyan']}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="{ex:.1f}" cy="{ey:.1f}" r="4.5" fill="{t['cyan']}" class="live"/>
-<line x1="835" y1="331" x2="1155" y2="331" stroke="{t['line']}" stroke-width="2"/>{blocks}
-<circle r="3.5" fill="{t['cyan']}"><animateMotion dur="3.2s" repeatCount="indefinite" path="M835 331 L1155 331"/></circle>
-</g>
-<rect x="0" y="416" width="1280" height="4" fill="url(#brand)" opacity=".85"/></g>{border}"""
-    label = f"MasterPutra — Web3 Developer · dApp Builder · Quant Builder. BTC/USD ${last:,.0f} ({chg:+.2f}% 6h)"
-    return svg_doc(1280, 420, label, body, style, defs)
+<path d="{path}" fill="none" stroke="{t['cyan']}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="{ex:.1f}" cy="{ey:.1f}" r="4.5" fill="{t['cyan']}"/>
+{''.join(axis)}
+<circle cx="{ix + 5}" cy="{py + ph - 30:.0f}" r="4.5" fill="{t['mint'] if live else t['muted']}"/>
+<text x="{ix + 18}" y="{py + ph - 23:.0f}" class="m" font-size="{LABEL}" fill="{t['muted']}">{esc(status)}</text>"""
+    defs = (f'<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{t["bg1"]}"/>'
+            f'<stop offset="1" stop-color="{t["bg2"]}"/></linearGradient>{brand_grad(t)}'
+            f'<linearGradient id="ef" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{t["cyan"]}" stop-opacity=".2"/>'
+            f'<stop offset="1" stop-color="{t["cyan"]}" stop-opacity="0"/></linearGradient>')
+    body = (f'<rect x=".75" y=".75" width="{W - 1.5}" height="{H - 1.5:.1f}" rx="20" fill="url(#bg)" stroke="{t["line"]}" stroke-width="1.5"/>'
+            + "".join(left) + panel)
+    label = f"MasterPutra: Web3 Developer, dApp Builder, Quant Builder. BTC/USD {price} ({chg:+.2f}% over 6h)"
+    return svg_doc(W, H, label, body, defs=defs)
 
 
-# ── section title ────────────────────────────────────────────────────────────
-def section(t, idx, title):
-    tw = FONTS.width(title, 30, weight=700)
-    defs = brand_grad(t) + (f'<linearGradient id="rule" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{t["indigo"]}" stop-opacity=".6"/>'
-                            f'<stop offset="1" stop-color="{t["indigo"]}" stop-opacity="0"/></linearGradient>')
-    body = (f'<text x="6" y="42" class="m" font-size="17" fill="{t["cyan"]}" letter-spacing="2">{idx}</text>'
-            f'<text x="50" y="44" class="s" font-size="30" font-weight="700" fill="url(#brand)" letter-spacing="-.6">{esc(title)}</text>'
-            f'<rect x="{50 + tw + 22:.0f}" y="34" width="1280" height="1.5" fill="url(#rule)"/>')
-    return svg_doc(1280, 64, title, body, defs=defs)
+# ── project cards ────────────────────────────────────────────────────────────
+FLOW = [("USDC", "client pays"), ("Solana", "settles in under 1s"), ("QRIS", "spend in IDR")]
 
 
-# ── cards ────────────────────────────────────────────────────────────────────
-def _tags(t, tags, x, y, accent, size=15):
-    out = []
-    for s in tags:
-        w = chip_w(s, size, True, 15)
-        out.append(f'<rect x="{x:.0f}" y="{y}" width="{w}" height="32" rx="16" fill="{accent}" fill-opacity=".09" stroke="{accent}" stroke-opacity=".38"/>'
-                   f'<text x="{x + w / 2:.1f}" y="{y + 21.5}" text-anchor="middle" class="m" font-size="{size}" fill="{t["text"]}">{esc(s)}</text>')
-        x += w + 10
-    return "".join(out), x
+def card_top(t, W, pad, kind, status):
+    """Meta line on the left, status badge and link arrow on the right. Returns (svg, baseline of meta line)."""
+    ax = W - pad - 38
+    badge, _ = live_badge(t, ax - 10, pad - 4) if status else ("", ax)
+    meta = f'<text x="{pad}" y="{pad + 22}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["muted"]}">{esc(kind)}</text>'
+    return meta + badge + arrow(t, ax, pad - 4), pad + 22
 
 
-def _badge(t, label, right_x, y):
-    w = chip_w(label, 12, True, 14) + 18 + len(label) * 1
-    x = right_x - w
-    return (f'<g transform="translate({x:.0f} {y})"><rect width="{w:.0f}" height="28" rx="14" fill="{t["mint"]}" fill-opacity=".1" stroke="{t["mint"]}" stroke-opacity=".45"/>'
-            f'<circle cx="15" cy="14" r="3.6" fill="{t["mint"]}"><animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/></circle>'
-            f'<text x="{(w + 14) / 2:.1f}" y="18.5" text-anchor="middle" class="m" font-size="12" fill="{t["mint"]}" letter-spacing="1">{esc(label)}</text></g>'), x
+def featured(t, p, W):
+    """DollarKilat, the project that is live and earning: full width, the only card with a product flow."""
+    narrow = W == NARROW
+    pad = pad_of(W)
+    col = W - 2 * pad if narrow else 440
+    top, y = card_top(t, W, pad, p["kind"], p.get("status"))
+    y += 62
+    out = [top, f'<text x="{pad - 2}" y="{y}" class="s" font-size="46" font-weight="800" letter-spacing="-1.4" fill="{t["bright"]}">{esc(p["title"])}</text>']
+    desc = wrap(p["desc"], BODY, col)
+    y += 44
+    out.append(lines_svg(desc, pad, y, BODY, 32, t["text"]))
+    y += 32 * (len(desc) - 1) + 26
+    tags, left_bottom = chips(t, p["tags"], pad, y, col)
+    out.append(tags)
+
+    if narrow:
+        fx, fy, fw = pad, left_bottom + 40, col
+    else:
+        fx, fy, fw = 520, pad + 72, W - pad - 520
+    rows, ry = [f'<text x="{fx}" y="{fy}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["muted"]}">How it works</text>'], fy + 16
+    for i, (name, sub) in enumerate(FLOW):
+        rows.append(f'<g><rect x="{fx}" y="{ry}" width="{fw}" height="52" rx="10" fill="{t["chip"]}" stroke="{t["line"]}"/>'
+                    f'<circle cx="{fx + 22}" cy="{ry + 26}" r="5" fill="{t["cyan"]}"/>'
+                    f'<text x="{fx + 38}" y="{ry + 33}" class="m" font-size="{LABEL}" font-weight="700" fill="{t["bright"]}">{name}</text>'
+                    f'<text x="{fx + fw - 18}" y="{ry + 33}" text-anchor="end" class="s" font-size="{LABEL}" fill="{t["muted"]}">{esc(sub)}</text></g>')
+        ry += 52
+        if i < len(FLOW) - 1:
+            cx, gy = fx + 22, ry + 12
+            rows.append(f'<path d="M{cx - 6} {gy - 3} L{cx} {gy + 3} L{cx + 6} {gy - 3}" fill="none" stroke="{t["muted"]}" '
+                        f'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>')
+            ry += 24
+    out += rows
+    H = max(left_bottom, ry) + pad
+    return svg_doc(W, H, f'{p["title"]}: {p["desc"]}', shell(t, W, H) + "".join(out))
 
 
-def _card_shell(t, W, H, accent):
-    defs = (f'<linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{accent}" stop-opacity=".8"/>'
-            f'<stop offset=".45" stop-color="{t["line"]}"/><stop offset="1" stop-color="{t["line"]}"/></linearGradient>'
-            f'<radialGradient id="glow" cx="{W}" cy="0" r="{W * .62:.0f}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{accent}" stop-opacity="{t["glow"] * .85:.2f}"/>'
-            f'<stop offset="1" stop-color="{accent}" stop-opacity="0"/></radialGradient>'
-            f'<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="{t["dots"]}"/></pattern>'
-            f'<clipPath id="c"><rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22"/></clipPath>')
-    body = (f'<g clip-path="url(#c)"><rect width="{W}" height="{H}" fill="{t["panel"]}"/><rect width="{W}" height="{H}" fill="url(#dots)" opacity=".7"/>'
-            f'<rect width="{W}" height="{H}" fill="url(#glow)"/><rect width="5" height="{H}" fill="{accent}"/></g>'
-            f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="none" stroke="url(#edge)" stroke-width="1.5"/>')
-    return defs, body
-
-
-def _arrow(t, x, y):
-    return (f'<g transform="translate({x} {y})"><rect width="32" height="32" rx="10" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-            f'<path d="M12 20 L20 12 M13.5 12 H20 V18.5" fill="none" stroke="{t["text"]}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g>')
-
-
-def card(t, p):
-    W, H = 640, 330
-    accent = t[p["accent"]]
-    defs, shell = _card_shell(t, W, H, accent)
-    badge, bx = _badge(t, p["status"], W - 82, 36) if p.get("status") else ("", W - 82)
-    desc = "".join(f'<tspan x="38" dy="{0 if i == 0 else 31}">{esc(s)}</tspan>' for i, s in enumerate(p["lines"]))
-    tags, _ = _tags(t, p["tags"], 38, 262, accent)
-    body = (shell + f'<text x="38" y="56" class="m" font-size="14" letter-spacing="2"><tspan fill="{accent}">{p["idx"]}</tspan>'
-            f'<tspan fill="{t["muted"]}">  /  {esc(p["kind"].upper())}</tspan></text>{badge}{_arrow(t, W - 70, 34)}'
-            f'<text x="36" y="118" class="s" font-size="40" font-weight="700" fill="{t["bright"]}" letter-spacing="-1">{esc(p["title"])}</text>'
-            f'<text x="38" y="164" class="s" font-size="22" fill="{t["text"]}">{desc}</text>{tags}')
-    return svg_doc(W, H, f'{p["title"]} — {" ".join(p["lines"])}', body, defs=defs)
-
-
-def featured(t, p):
-    """Full-width DollarKilat card with a USDC → Solana → QRIS flow."""
-    W, H = 1280, 360
-    accent = t["cyan"]
-    defs, shell = _card_shell(t, W, H, accent)
-    badge, _ = _badge(t, "LIVE · dollarkilat.xyz", W - 86, 38)
-    desc = "".join(f'<tspan x="40" dy="{0 if i == 0 else 34}">{esc(s)}</tspan>' for i, s in enumerate(p["lines"]))
-    tags, _ = _tags(t, p["tags"], 40, 290, accent, 15)
-    nodes = [("USDC", "client pays", t["blue"]), ("SOLANA", "settles < 1s", t["violet"]), ("QRIS", "spend in IDR", t["mint"])]
-    nx, ny, cy, step = 756, 160, 208, 170
-    # travelling dot is drawn first so the (opaque) nodes sit on top of it
-    flow = [f'<path d="M{nx + 64} {cy} H{nx + 2 * step + 64}" stroke="{t["line"]}" stroke-width="2" stroke-dasharray="2 6"/>'
-            f'<circle r="5" fill="{accent}"><animateMotion dur="2.8s" repeatCount="indefinite" path="M{nx + 64} {cy} H{nx + 2 * step + 64}"/>'
-            f'<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="2.8s" repeatCount="indefinite"/></circle>']
-    for i, (n, sub, col) in enumerate(nodes):
-        x = nx + i * step
-        flow.append(f'<g class="rise" style="animation-delay:{.3 + i * .15:.2f}s"><rect x="{x}" y="{ny}" width="128" height="96" rx="16" fill="{t["chip"]}" stroke="{col}" stroke-opacity=".6"/>'
-                    f'<circle cx="{x + 24}" cy="{ny + 29}" r="6" fill="{col}"/>'
-                    f'<text x="{x + 38}" y="{ny + 34}" class="m" font-size="15" font-weight="700" fill="{t["bright"]}" letter-spacing="1">{n}</text>'
-                    f'<text x="{x + 18}" y="{ny + 72}" class="s" font-size="15" fill="{t["muted"]}">{esc(sub)}</text></g>')
-        if i < 2:
-            ax = x + 128
-            flow.append(f'<path d="M{ax + 18} {cy - 6} L{ax + 25} {cy} L{ax + 18} {cy + 6}" fill="none" stroke="{t["dim"]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>')
-    flow_bg = f'<rect x="732" y="110" width="512" height="172" rx="20" fill="{t["panel"]}" fill-opacity=".6" stroke="{t["line"]}" stroke-dasharray="4 6"/>'
-    style = ".rise{opacity:0;animation:rise .7s ease-out forwards}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}"
-    body = (shell + f'<text x="40" y="60" class="m" font-size="14" letter-spacing="2"><tspan fill="{accent}">01</tspan>'
-            f'<tspan fill="{t["muted"]}">  /  FEATURED  ·  SOLANA PAYMENTS</tspan></text>{badge}{_arrow(t, W - 72, 36)}'
-            f'<text x="38" y="138" class="s" font-size="58" font-weight="800" fill="{t["bright"]}" letter-spacing="-2">{esc(p["title"])}</text>'
-            f'<text x="40" y="190" class="s" font-size="24" fill="{t["text"]}">{desc}</text>{tags}'
-            f'{flow_bg}<text x="756" y="140" class="m" font-size="12" fill="{t["muted"]}" letter-spacing="2">HOW IT WORKS</text>{"".join(flow)}')
-    return svg_doc(W, H, f'{p["title"]} — {" ".join(p["lines"])}', body, style, defs)
+def card(t, p, W):
+    pad = pad_of(W)
+    inner = W - 2 * pad
+    top, y = card_top(t, W, pad, p["kind"], p.get("status"))
+    y += 50
+    out = [top, f'<text x="{pad - 1}" y="{y}" class="s" font-size="34" font-weight="700" letter-spacing="-.8" fill="{t["bright"]}">{esc(p["title"])}</text>']
+    desc = wrap(p["desc"], BODY, min(inner, 760))
+    y += 40
+    out.append(lines_svg(desc, pad, y, BODY, 32, t["text"]))
+    y += 32 * (len(desc) - 1) + 24
+    tags, bottom = chips(t, p["tags"], pad, y, inner)
+    out.append(tags)
+    H = bottom + pad
+    return svg_doc(W, H, f'{p["title"]}: {p["desc"]}', shell(t, W, H) + "".join(out))
 
 
 # ── stack ────────────────────────────────────────────────────────────────────
 STACK = [
-    ("LANGUAGES", "cyan", ["TypeScript", "JavaScript", "Python", "Solidity", "SQL"]),
-    ("PRODUCT", "blue", ["Next.js", "React", "Tailwind", "Node.js", "Express", "Laravel", "Vercel"]),
-    ("DATA · INFRA", "indigo", ["PostgreSQL", "Prisma", "Supabase", "MongoDB", "Redis", "Firebase", "Docker", "Cloudflare"]),
-    ("WEB3", "violet", ["Solana", "EVM · Base", "Hardhat", "Privy", "Wallet UX", "IPFS"]),
-    ("MARKETS", "mint", ["Polymarket CLOB", "Hyperliquid", "Kelly sizing", "Backtesting", "Telegram alerts"]),
-    ("ML", "rose", ["XGBoost", "LightGBM", "LSTM", "Pandas", "NumPy", "Drift detection"]),
+    ("Languages", ["TypeScript", "JavaScript", "Python", "Solidity", "SQL"]),
+    ("Product", ["Next.js", "React", "Tailwind", "Node.js", "Express", "Laravel", "Vercel"]),
+    ("Data · Infra", ["PostgreSQL", "Prisma", "Supabase", "MongoDB", "Redis", "Firebase", "Docker", "Cloudflare"]),
+    ("Web3", ["Solana", "EVM · Base", "Hardhat", "Privy", "Wallet UX", "IPFS"]),
+    ("Markets", ["Polymarket CLOB", "Hyperliquid", "Kelly sizing", "Backtesting", "Telegram alerts"]),
+    ("ML", ["XGBoost", "LightGBM", "LSTM", "Pandas", "NumPy", "Drift detection"]),
 ]
 
 
-STACK_FS = 18.5
-
-
-def stack(t):
-    W, row_h = 1280, 62
-    H = 40 + row_h * len(STACK)
-    out = []
-    for r, (label, key, items) in enumerate(STACK):
-        y = 26 + r * row_h
-        col = t[key]
-        out.append(f'<circle cx="42" cy="{y + 19}" r="4.5" fill="{col}"/><text x="58" y="{y + 24}" class="m" font-size="15" letter-spacing="2.2" fill="{col}">{label}</text>')
-        x = 236
-        for s in items:
-            w = chip_w(s, STACK_FS, False, 16)
-            if x + w > W - 32:
-                raise ValueError(f"stack row {label} overflows")
-            out.append(f'<rect x="{x}" y="{y}" width="{w}" height="38" rx="11" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-                       f'<text x="{x + w / 2:.1f}" y="{y + 25}" text-anchor="middle" class="s" font-size="{STACK_FS}" font-weight="500" fill="{t["text"]}">{esc(s)}</text>')
-            x += w + 10
-    defs = f'<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="{t["dots"]}"/></pattern>'
-    body = (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="{t["panel"]}" stroke="{t["line"]}"/>'
-            f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="url(#dots)" opacity=".55"/>'
-            f'<line x1="212" y1="28" x2="212" y2="{H - 28}" stroke="{t["line"]}"/>' + "".join(out))
-    alt = " · ".join(f"{l}: {', '.join(i)}" for l, _, i in STACK)
-    return svg_doc(W, H, alt, body, defs=defs)
+def stack(t, W):
+    narrow = W == NARROW
+    pad = pad_of(W)
+    label_w = 0 if narrow else 160
+    out, y = [], pad
+    for label, items in STACK:
+        lab = f'<text x="{pad}" y="{y + (LABEL if narrow else 19 + LABEL * .36):.0f}" class="s" font-size="{LABEL}" font-weight="600" fill="{t["muted"]}">{esc(label)}</text>'
+        if narrow:
+            y += 32
+        ch, bottom = chips(t, items, pad + label_w, y, W - 2 * pad - label_w)
+        out.append(lab + ch)
+        y = bottom + (26 if narrow else 14)
+    H = y - (26 if narrow else 14) + pad
+    alt = ". ".join(f"{l}: {', '.join(i)}" for l, i in STACK)
+    return svg_doc(W, H, alt, shell(t, W, H) + "".join(out))
 
 
 # ── stats ────────────────────────────────────────────────────────────────────
@@ -556,110 +593,141 @@ NON_CODE = {"HTML", "CSS", "SCSS", "Less", "Jupyter Notebook", "Batchfile", "Pow
             "Dockerfile", "Makefile", "Procfile", "Hack", "EJS", "Handlebars"}
 
 
-def stats_card(t, s):
-    W, H = 1280, 360
+def stats_card(t, s, W):
+    narrow = W == NARROW
+    pad = pad_of(W)
     (cur, cs, ce), (best, bs, be) = streaks(s["days"])
     total = sum(s["days"].values())
     since = dt.datetime.fromisoformat(s["created"].replace("Z", "+00:00")).strftime("%b %Y")
-    kpis = [
-        ("CONTRIBUTIONS", f"{total:,}", f"since {since}", t["cyan"]),
-        ("CURRENT STREAK", f"{cur}", f"{fmt_day(cs)} – {fmt_day(ce)}" if cur else "start one today", t["mint"]),
-        ("LONGEST STREAK", f"{best}", f"{fmt_day(bs)} – {fmt_day(be)}" if best else "—", t["violet"]),
-        ("STARS EARNED", f"{s['stars']}", f"across {s['repos']} public repos", t["indigo"]),
-    ]
+    fetched = dt.datetime.fromisoformat(s["fetched"]).astimezone(WIB)
+    updated = "Demo data, GitHub API unavailable" if s.get("demo") else f"Updated {fetched:%d %b %H:%M} WIB"
     out = []
-    tw, gap, x0 = 287, 12, 40
-    for i, (lab, val, sub, col) in enumerate(kpis):
-        x = x0 + i * (tw + gap)
-        unit = " days" if "STREAK" in lab else ""
-        vw = FONTS.width(val, 46, weight=800)
-        out.append(f'<g class="rise" style="animation-delay:{.1 + i * .08:.2f}s"><rect x="{x}" y="72" width="{tw}" height="112" rx="16" fill="{t["chip"]}" stroke="{t["line"]}"/>'
-                   f'<rect x="{x}" y="72" width="{tw}" height="3" rx="1.5" fill="{col}" opacity=".9"/>'
-                   f'<text x="{x + 22}" y="104" class="m" font-size="12" letter-spacing="1.8" fill="{t["muted"]}">{lab}</text>'
-                   f'<text x="{x + 20}" y="152" class="s" font-size="46" font-weight="800" letter-spacing="-1.5" fill="{t["bright"]}">{val}'
-                   f'<tspan class="m" font-size="15" font-weight="400" letter-spacing="0" fill="{t["muted"]}">{unit}</tspan></text>'
-                   f'<text x="{x + 22}" y="172" class="s" font-size="13.5" fill="{t["muted"]}">{esc(sub)}</text></g>')
-    # 52-week activity bars
+    y = pad + 22
+    out.append(f'<text x="{pad}" y="{y}" class="s" font-size="{LABEL}" fill="{t["muted"]}"><tspan class="m" font-weight="700" fill="{t["bright"]}">@{USER}</tspan>'
+               f'<tspan dx="12">GitHub activity</tspan></text>')
+    if narrow:
+        y += 30
+        out.append(f'<text x="{pad}" y="{y}" class="s" font-size="{LABEL}" fill="{t["muted"]}">{esc(updated)}</text>')
+    else:
+        out.append(f'<text x="{W - pad}" y="{y}" text-anchor="end" class="s" font-size="{LABEL}" fill="{t["muted"]}">{esc(updated)}</text>')
+
+    kpis = [
+        ("Contributions", f"{total:,}", "", f"since {since}"),
+        ("Current streak", f"{cur}", " days", f"{fmt_day(cs)} – {fmt_day(ce)}" if cur else "none right now"),
+        ("Longest streak", f"{best}", " days", f"{fmt_day(bs)} – {fmt_day(be)}" if best else "none yet"),
+        ("Stars earned", f"{s['stars']}", "", f"{s['repos']} public repos"),
+    ]
+    cols, gap, th = (2 if narrow else 4), 12, 128
+    tile_w = (W - 2 * pad - gap * (cols - 1)) / cols
+    ty0 = y + 26
+    for i, (lab, val, unit, sub) in enumerate(kpis):
+        r, c_ = divmod(i, cols)
+        x, ty = pad + c_ * (tile_w + gap), ty0 + r * (th + gap)
+        out.append(f'<g><rect x="{x:.1f}" y="{ty:.0f}" width="{tile_w:.1f}" height="{th}" rx="12" fill="{t["chip"]}" stroke="{t["line"]}"/>'
+                   f'<text x="{x + 20:.1f}" y="{ty + 34:.0f}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["muted"]}">{lab}</text>'
+                   f'<text x="{x + 18:.1f}" y="{ty + 84:.0f}" class="s" font-size="44" font-weight="800" letter-spacing="-1.2" fill="{t["bright"]}">{val}'
+                   f'<tspan font-size="{LABEL}" font-weight="500" letter-spacing="0" fill="{t["muted"]}">{unit}</tspan></text>'
+                   f'<text x="{x + 20:.1f}" y="{ty + 113:.0f}" class="s" font-size="{LABEL}" fill="{t["muted"]}">{esc(sub)}</text></g>')
+    y = ty0 + (len(kpis) // cols) * (th + gap) - gap + 44
+
+    # 52-week activity
+    aw = W - 2 * pad if narrow else 500
     ds = sorted(s["days"])[-364:]
     weeks = [sum(s["days"][d] for d in ds[i:i + 7]) for i in range(0, len(ds), 7)]
     mx = max(weeks) or 1
-    bx, by, bh = 40, 322, 82
+    step = aw / len(weeks)
+    bh, by = 90, y + 112
     bars = []
     for i, v in enumerate(weeks):
         h = max(3, v / mx * bh)
-        bars.append(f'<rect class="bar" style="animation-delay:{.3 + i * .012:.3f}s" x="{bx + i * 13.4:.1f}" y="{by - h:.1f}" width="9.4" height="{h:.1f}" rx="2.5" '
-                    f'fill="{"url(#barG)" if v else t["line"]}"/>')
-    out.append(f'<text x="40" y="222" class="m" font-size="12" letter-spacing="1.8" fill="{t["muted"]}">52-WEEK ACTIVITY</text>'
-               f'<text x="{bx + 52 * 13.4 - 4:.0f}" y="222" text-anchor="end" class="m" font-size="12" fill="{t["muted"]}">peak {mx}/wk</text>' + "".join(bars))
-    # languages
-    langs = sorted(((k, v) for k, v in s["langs"].items() if k not in NON_CODE),
-                   key=lambda kv: -kv[1])
+        bars.append(f'<rect x="{pad + i * step:.1f}" y="{by - h:.1f}" '
+                    f'width="{step * .68:.1f}" height="{h:.1f}" rx="2" fill="{t["cyan"] if v else t["line"]}"/>')
+    out.append(f'<text x="{pad}" y="{y}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["muted"]}">52-week activity</text>'
+               f'<text x="{pad + aw:.0f}" y="{y}" text-anchor="end" class="s" font-size="{LABEL}" fill="{t["muted"]}">peak {mx}/wk</text>' + "".join(bars))
+
+    # languages: top three by bytes plus the rest as "Other"
+    langs = sorted(((k, v) for k, v in s["langs"].items() if k not in NON_CODE), key=lambda kv: -kv[1])
     tot = sum(v for _, v in langs) or 1
-    top = [(k, v) for k, v in langs[:5] if v / tot >= 0.01]  # sub-1% slivers read as noise
+    top = [(k, v) for k, v in langs[:3] if v / tot >= 0.01]
     other = tot - sum(v for _, v in top)
     if other / tot >= 0.01:
         top.append(("Other", other))
-    pal = [t["cyan"], t["indigo"], t["violet"], t["mint"], t["rose"], t["dim"]]
-    lx, ly, lw = 800, 244, 440
+    pal = [t["cyan"], t["violet"], t["n1"], t["n2"]]
+    if narrow:
+        lx, ly, lw = pad, by + 44, W - 2 * pad
+    else:
+        lx, ly, lw = pad + aw + 60, y, W - pad - (pad + aw + 60)
     seg, x = [], lx
     for i, (k, v) in enumerate(top):
         w = v / tot * lw
-        seg.append(f'<rect x="{x:.1f}" y="{ly}" width="{max(w - 2, 1):.1f}" height="12" fill="{pal[i]}"/>')
+        seg.append(f'<rect x="{x:.1f}" y="{ly + 20}" width="{max(w - 2, 1):.1f}" height="12" fill="{pal[i]}"/>')
         x += w
     legend = []
     for i, (k, v) in enumerate(top):
-        cx, cy = lx + (i % 2) * 226, ly + 42 + (i // 2) * 28
-        legend.append(f'<circle cx="{cx + 5}" cy="{cy - 5}" r="5" fill="{pal[i]}"/><text x="{cx + 18}" y="{cy}" class="s" font-size="15" font-weight="500" fill="{t["text"]}">{esc(k)}'
-                      f'<tspan class="m" font-size="13" font-weight="400" fill="{t["muted"]}">  {v / tot * 100:.1f}%</tspan></text>')
-    out.append(f'<text x="{lx}" y="222" class="m" font-size="12" letter-spacing="1.8" fill="{t["muted"]}">TOP LANGUAGES</text>'
-               f'<clipPath id="lc"><rect x="{lx}" y="{ly}" width="{lw}" height="12" rx="6"/></clipPath><g clip-path="url(#lc)">{"".join(seg)}</g>' + "".join(legend))
-    fetched = dt.datetime.fromisoformat(s["fetched"]).astimezone(WIB)
-    defs = (f'<linearGradient id="barG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{t["cyan"]}"/><stop offset="1" stop-color="{t["violet"]}"/></linearGradient>'
-            f'<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="{t["dots"]}"/></pattern>')
-    style = (".rise{opacity:0;animation:rise .7s ease-out forwards}.bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .6s ease-out both}"
-             "@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes grow{from{transform:scaleY(0)}to{transform:none}}")
-    body = (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="{t["panel"]}" stroke="{t["line"]}"/>'
-            f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="22" fill="url(#dots)" opacity=".5"/>'
-            f'<text x="40" y="48" class="m" font-size="13" letter-spacing="2" fill="{t["muted"]}"><tspan fill="{t["bright"]}" font-weight="700">@{USER}</tspan>  ·  GITHUB ACTIVITY</text>'
-            f'<text x="1240" y="48" text-anchor="end" class="m" font-size="12" fill="{t["dim"]}" letter-spacing="1">updated {fetched:%d %b %H:%M} WIB</text>'
-            f'<line x1="770" y1="210" x2="770" y2="326" stroke="{t["line"]}"/>' + "".join(out))
+        cy = ly + 66 + i * 30
+        legend.append(f'<circle cx="{lx + 6}" cy="{cy - 6}" r="5.5" fill="{pal[i]}"/>'
+                      f'<text x="{lx + 22}" y="{cy}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["text"]}">{esc(k)}</text>'
+                      f'<text x="{lx + lw}" y="{cy}" text-anchor="end" class="m" font-size="{LABEL}" fill="{t["muted"]}">{v / tot * 100:.1f}%</text>')
+    out.append(f'<text x="{lx}" y="{ly}" class="s" font-size="{LABEL}" font-weight="500" fill="{t["muted"]}">Top languages</text>'
+               f'<clipPath id="lc"><rect x="{lx}" y="{ly + 20}" width="{lw}" height="12" rx="6"/></clipPath><g clip-path="url(#lc)">{"".join(seg)}</g>' + "".join(legend))
+    H = max(by, ly + 66 + (len(top) - 1) * 30 + 6) + pad
     label = f"GitHub activity: {total:,} contributions, current streak {cur} days, longest {best} days, {s['stars']} stars"
-    return svg_doc(W, H, label, body, style, defs)
+    if s.get("demo"):
+        label += " (demo data)"
+    return svg_doc(W, H, label, shell(t, W, H, 20) + "".join(out))
 
 
 # ── footer ───────────────────────────────────────────────────────────────────
-def footer(t):
-    defs = brand_grad(t) + (f'<linearGradient id="fl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{t["indigo"]}" stop-opacity="0"/>'
-                            f'<stop offset=".5" stop-color="{t["indigo"]}" stop-opacity=".7"/><stop offset="1" stop-color="{t["indigo"]}" stop-opacity="0"/></linearGradient>')
-    style = ".p{animation:p 2.4s ease-in-out infinite}@keyframes p{0%,100%{opacity:.35}50%{opacity:1}}"
-    body = (f'<rect x="140" y="40" width="1000" height="1.5" fill="url(#fl)"/><g transform="translate(640 41)">'
-            f'<rect x="-9" y="-9" width="18" height="18" rx="4" transform="rotate(45)" fill="{t["bg1"]}" stroke="url(#brand)" stroke-width="2"/>'
-            f'<rect x="-3.5" y="-3.5" width="7" height="7" rx="1.5" transform="rotate(45)" fill="{t["cyan"]}" class="p"/></g>'
-            f'<text x="640" y="98" text-anchor="middle" class="m" font-size="21" fill="{t["muted"]}">“in code we trust, <tspan fill="url(#brand)" font-weight="700">in markets we hunt</tspan>”</text>'
-            f'<text x="640" y="130" text-anchor="middle" class="m" font-size="13" fill="{t["dim"]}" letter-spacing="3">BUILT IN INDONESIA · SHIPPED ON-CHAIN</text>')
-    return svg_doc(1280, 150, "In code we trust, in markets we hunt", body, style, defs)
+def footer(t, W):
+    narrow = W == NARROW
+    pad = pad_of(W)
+    mid = W / 2
+    body = [f'<line x1="{pad}" y1="20" x2="{mid - 22}" y2="20" stroke="{t["line"]}" stroke-width="1.5"/>'
+            f'<line x1="{mid + 22}" y1="20" x2="{W - pad}" y2="20" stroke="{t["line"]}" stroke-width="1.5"/>'
+            f'<rect x="-8" y="-8" width="16" height="16" rx="3" transform="translate({mid} 20) rotate(45)" fill="none" stroke="{t["cyan"]}" stroke-width="2"/>']
+    a, b = "“in code we trust,", "in markets we hunt”"
+    if narrow:
+        body.append(f'<text x="{mid}" y="72" text-anchor="middle" class="s" font-size="24" fill="{t["text"]}">{a}</text>'
+                    f'<text x="{mid}" y="104" text-anchor="middle" class="s" font-size="24" font-weight="700" fill="{t["cyan"]}">{b}</text>')
+        y = 144
+    else:
+        body.append(f'<text x="{mid}" y="74" text-anchor="middle" class="s" font-size="24" fill="{t["text"]}">{a} '
+                    f'<tspan font-weight="700" fill="{t["cyan"]}">{b}</tspan></text>')
+        y = 112
+    body.append(f'<text x="{mid}" y="{y}" text-anchor="middle" class="s" font-size="{LABEL}" fill="{t["muted"]}">Built in Indonesia · shipped on-chain</text>')
+    return svg_doc(W, y + 20, "In code we trust, in markets we hunt. Built in Indonesia, shipped on-chain.", "".join(body))
+
+
+# ── connect buttons ──────────────────────────────────────────────────────────
+CONNECT = [("x", "X @masterputra6969"), ("linkedin", "LinkedIn"), ("github", "GitHub"), ("dollarkilat", "dollarkilat.xyz")]
+
+
+def button(t, label):
+    """README shows these at height=48, so they keep a 48px tap target at every screen width."""
+    w = round(tw(label, LABEL, 600) + 44)
+    body = (f'<rect x=".75" y=".75" width="{w - 1.5}" height="46.5" rx="9" fill="{t["panel"]}" stroke="{t["line"]}" stroke-width="1.5"/>'
+            f'<text x="{w / 2:.1f}" y="{24 + LABEL * .36:.1f}" text-anchor="middle" class="s" font-size="{LABEL}" font-weight="600" fill="{t["bright"]}">{esc(label)}</text>')
+    return svg_doc(w, 48, label, body)
 
 
 # ── content ──────────────────────────────────────────────────────────────────
-FEATURED = dict(title="DollarKilat", tags=["Solana", "Next.js", "TypeScript", "PWA", "QRIS"],
-                lines=["Get paid in USDC, spend anywhere via QRIS.", "A Solana PWA for Indonesian freelancers,",
-                       "built for Colosseum Frontier 2026."])
+FEATURED = dict(title="DollarKilat", kind="Featured · Solana payments", status="Live",
+                tags=["Solana", "Next.js", "TypeScript", "PWA", "QRIS"],
+                desc="Get paid in USDC, spend anywhere via QRIS. A Solana PWA for Indonesian freelancers, built for Colosseum Frontier 2026.")
 CARDS = [
-    dict(slug="polymarket-btc", idx="02", kind="Quant · ML", title="Polymarket BTC 15m", accent="mint",
-         lines=["XGBoost + LightGBM ensemble trading", "BTC 15-min markets: drift detection,", "auto-retrain, live React dashboard."],
+    dict(slug="polymarket-btc", kind="Quant · ML", title="Polymarket BTC 15m",
+         desc="XGBoost + LightGBM ensemble trading BTC 15-min markets: drift detection, auto-retrain, live React dashboard.",
          tags=["TypeScript", "XGBoost", "LightGBM"]),
-    dict(slug="anyaman", idx="03", kind="Media · Full-stack", title="Anyaman", accent="violet", status="LIVE",
-         lines=["Peace-journalism portal with moderated", "discussion and AI-assisted articles.", "Next.js 15 · Supabase · Auth.js."],
+    dict(slug="anyaman", kind="Media · Full-stack", title="Anyaman", status="Live",
+         desc="Peace-journalism portal with moderated discussion and AI-assisted articles. Next.js 15, Supabase, Auth.js.",
          tags=["Next.js", "Postgres", "Prisma"]),
-    dict(slug="crypto-suite", idx="04", kind="Education · Security", title="Crypto Suite", accent="rose",
-         lines=["19 cipher algorithms, classical to", "modern, with interactive visuals and", "step-by-step guides."],
+    dict(slug="crypto-suite", kind="Education · Security", title="Crypto Suite",
+         desc="19 cipher algorithms, classical to modern, with interactive visuals and step-by-step guides.",
          tags=["React", "JavaScript", "Crypto"]),
-    dict(slug="simple-web3", idx="05", kind="Web3 · EVM", title="Simple Web3 Web", accent="blue",
-         lines=["Ethereum + Base on-chain data surface", "with Privy login, readable for people", "new to Web3."],
+    dict(slug="simple-web3", kind="Web3 · EVM", title="Simple Web3 Web",
+         desc="Ethereum + Base on-chain data surface with Privy login, readable for people new to Web3.",
          tags=["JavaScript", "Ethereum", "Privy"]),
 ]
-SECTIONS = [("about", "01", "About"), ("work", "02", "Selected Work"), ("stack", "03", "Stack"),
-            ("activity", "04", "Activity"), ("connect", "05", "Connect")]
 
 
 def main():
@@ -676,21 +744,22 @@ def main():
     btc = None if a.mock else fetch_btc()
     btc = btc or (None if a.mock else cached("btc.json")) or demo_btc()
     stats = mock_stats() if a.mock else (fetch_stats() or cached("stats.json") or mock_stats())
-    log("btc source:", btc["source"], "| stats fetched:", stats.get("fetched"))
+    log("btc source:", btc["source"], "| stats fetched:", stats.get("fetched"), "| demo stats:", bool(stats.get("demo")))
     (out / "data/btc.json").write_text(json.dumps(btc))
     (out / "data/stats.json").write_text(json.dumps(stats))
 
     files = {}
     for name, t in THEMES.items():
-        files[f"header-{name}.svg"] = header(t, btc)
-        files[f"stats-{name}.svg"] = stats_card(t, stats)
-        files[f"stack-{name}.svg"] = stack(t)
-        files[f"footer-{name}.svg"] = footer(t)
-        files[f"card-dollarkilat-{name}.svg"] = featured(t, FEATURED)
-        for p in CARDS:
-            files[f"card-{p['slug']}-{name}.svg"] = card(t, p)
-        for slug, idx, title in SECTIONS:
-            files[f"section-{slug}-{name}.svg"] = section(t, idx, title)
+        for suffix, W in (("", WIDE), ("-narrow", NARROW)):
+            files[f"header-{name}{suffix}.svg"] = header(t, btc, W)
+            files[f"stats-{name}{suffix}.svg"] = stats_card(t, stats, W)
+            files[f"stack-{name}{suffix}.svg"] = stack(t, W)
+            files[f"footer-{name}{suffix}.svg"] = footer(t, W)
+            files[f"card-dollarkilat-{name}{suffix}.svg"] = featured(t, FEATURED, W)
+            for p in CARDS:
+                files[f"card-{p['slug']}-{name}{suffix}.svg"] = card(t, p, W)
+        for slug, label in CONNECT:
+            files[f"connect-{slug}-{name}.svg"] = button(t, label)
     for fn, svg in files.items():
         (out / fn).write_text(svg, encoding="utf-8")
     log(f"wrote {len(files)} svgs, {sum(len(v) for v in files.values()) / 1024:.0f} KB total")
